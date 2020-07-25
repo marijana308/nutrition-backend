@@ -44,17 +44,6 @@ public class FoodService implements FoodServiceInterface{
 	}
 
 	@Override
-	public List<Food> findFoodsByUsername(String username) {
-		List<Food> foods = new ArrayList<Food>();
-		for(Food food : foodRepository.findAll()) {
-			if(food.getUser().getUsername().equals(username)) {
-				foods.add(food);
-			}
-		}
-		return foods;
-	}
-
-	@Override
 	public List<Food> findAll() {
 		return foodRepository.findAll();
 	}
@@ -69,5 +58,39 @@ public class FoodService implements FoodServiceInterface{
 		}
 		return foods;
 	}
+
+	@Override
+	public List<Food> searchFoodsCreatedByAdmins(String query) {
+		List<Food> foods = new ArrayList<Food>();
+		for(Food food : foodRepository.findAll()) {
+			if(food.getUser().getRole().equals(Role.ADMIN) && food.getName().toLowerCase().contains(query.toLowerCase())) {
+				foods.add(food);
+			}
+		}
+		return foods;
+	}
+	
+	@Override
+	public List<Food> findFoodsByUsername(String username) {
+		List<Food> foods = new ArrayList<Food>();
+		for(Food food : foodRepository.findAll()) {
+			if(food.getUser().getUsername().equals(username)) {
+				foods.add(food);
+			}
+		}
+		return foods;
+	}
+
+	@Override
+	public List<Food> searchFoodsByUsername(String username, String query) {
+		List<Food> foods = new ArrayList<Food>();
+		for(Food food : foodRepository.findAll()) {
+			if(food.getUser().getUsername().equals(username) && food.getName().toLowerCase().contains(query.toLowerCase())) {
+				foods.add(food);
+			}
+		}
+		return foods;
+	}
+
 
 }

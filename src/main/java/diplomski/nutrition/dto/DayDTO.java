@@ -12,19 +12,20 @@ import diplomski.nutrition.entity.NutritionixExerciseDay;
 
 public class DayDTO {
 
+	private Long id;
 	private Date date;
 	private String username;
 	private Float totalWaterIntake;
 	private Set<MealDTO> meals;
 	private Set<DayExerciseDTO> exercises;
-	private Set<String> nutritionixExercises;//query for nutritionixAPI
+	private Set<DayNutritionixExerciseDTO> nutritionixExercises;//query for nutritionixAPI
 	
 	public DayDTO() {
 		super();
 	}
 
 	public DayDTO(Date date, String username, Float totalWaterIntake, Set<MealDTO> meals, Set<DayExerciseDTO> exercises,
-			Set<String> nutritionixExercises) {
+			Set<DayNutritionixExerciseDTO> nutritionixExercises) {
 		super();
 		this.date = date;
 		this.username = username;
@@ -32,6 +33,18 @@ public class DayDTO {
 		this.meals = meals;
 		this.exercises = exercises;
 		this.nutritionixExercises = nutritionixExercises;
+	}
+	
+	public DayDTO(Long id, Date date, String username, Float totalWaterIntake) {
+		super();
+		this.id = id;
+		this.date = date;
+		this.username = username;
+		this.totalWaterIntake = totalWaterIntake;
+	}
+	
+	public DayDTO(Day day) {
+		this(day.getId(), day.getDate(), day.getUser().getUsername(), day.getTotalWaterIntake());
 	}
 	
 //	public DayDTO getDayDTO(Day day) {
@@ -49,6 +62,14 @@ public class DayDTO {
 //		}
 //		return new DayDTO(day.getDate(), day.getUser().getUsername(), day.getTotalWaterIntake(), mealDTOs, exerciseDTOs, nutritionExercisesDTO);
 //	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	public Date getDate() {
 		return date;
@@ -90,11 +111,11 @@ public class DayDTO {
 		this.exercises = exercises;
 	}
 
-	public Set<String> getNutritionixExercises() {
+	public Set<DayNutritionixExerciseDTO> getNutritionixExercises() {
 		return nutritionixExercises;
 	}
 
-	public void setNutritionixExercises(Set<String> nutritionixExercises) {
+	public void setNutritionixExercises(Set<DayNutritionixExerciseDTO> nutritionixExercises) {
 		this.nutritionixExercises = nutritionixExercises;
 	}
 }

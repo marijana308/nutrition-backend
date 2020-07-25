@@ -2,14 +2,19 @@ package diplomski.nutrition.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.time.Period;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import diplomski.nutrition.entity.Nutrient;
 import diplomski.nutrition.entity.RegularUser;
 import diplomski.nutrition.enumeration.ActivityLevel;
 import diplomski.nutrition.enumeration.Gender;
+import diplomski.nutrition.repository.NutrientRepository;
 import diplomski.nutrition.repository.RegularUserRepository;
 import diplomski.nutrition.service.RegularUserServiceInterface;
 
@@ -18,25 +23,84 @@ public class RegularUserService implements RegularUserServiceInterface{
 
 	@Autowired
 	RegularUserRepository regularUserRepository;
+	
+	@Autowired
+	NutrientRepository nutrientRepository;
+	
+	@Autowired
+	NutrientService nutrientService;
+	
+	private Integer calculateAge(Date birthDate) {
+	      int years = 0;
+	      int months = 0;
+	      //int days = 0;
+	 
+	      //create calendar object for birth day
+	      Calendar birthDay = Calendar.getInstance();
+	      birthDay.setTimeInMillis(birthDate.getTime());
+	 
+	      //create calendar object for current day
+	      long currentTime = System.currentTimeMillis();
+	      Calendar now = Calendar.getInstance();
+	      now.setTimeInMillis(currentTime);
+	 
+	      //Get difference between years
+	      years = now.get(Calendar.YEAR) - birthDay.get(Calendar.YEAR);
+	      int currMonth = now.get(Calendar.MONTH) + 1;
+	      int birthMonth = birthDay.get(Calendar.MONTH) + 1;
+	 
+	      //Get difference between months
+	      months = currMonth - birthMonth;
+	 
+	      //if month difference is in negative then reduce years by one 
+	      //and calculate the number of months.
+	      if (months < 0)
+	      {
+	         years--;
+	         months = 12 - birthMonth + currMonth;
+	         if (now.get(Calendar.DATE) < birthDay.get(Calendar.DATE))
+	            months--;
+	      } else if (months == 0 && now.get(Calendar.DATE) < birthDay.get(Calendar.DATE))
+	      {
+	         years--;
+	         months = 11;
+	      }
+	 
+//	      //Calculate the days
+//	      if (now.get(Calendar.DATE) > birthDay.get(Calendar.DATE))
+//	         days = now.get(Calendar.DATE) - birthDay.get(Calendar.DATE);
+//	      else if (now.get(Calendar.DATE) < birthDay.get(Calendar.DATE))
+//	      {
+//	         int today = now.get(Calendar.DAY_OF_MONTH);
+//	         now.add(Calendar.MONTH, -1);
+//	         days = now.getActualMaximum(Calendar.DAY_OF_MONTH) - birthDay.get(Calendar.DAY_OF_MONTH) + today;
+//	      } 
+//	      else
+//	      {
+//	         days = 0;
+//	         if (months == 12)
+//	         {
+//	            years++;
+//	            months = 0;
+//	         }
+//	      }
+	      //Create new Age object 
+	      return years;
+	   }
 
-	public Float calculateBMI(Float height, Float weight) {
-//		System.out.println("calculate BMI, height: " + height);
-//		System.out.println("calculate BMI, weight: " + weight);
+	private Float calculateBMI(Float height, Float weight) {
 		Float heightInMeters = height / 100;
 		Float heightSquared = heightInMeters * heightInMeters;
 		Float BMI = weight / heightSquared;
 		return BMI;	
 	}
 	
-	@SuppressWarnings("deprecation")
-	public Float calculateBMR(Float height, Float weight, Date birthday, Gender gender) {
-//		System.out.println("calculate BMR, height: " + height);
-//		System.out.println("calculate BMR, weight: " + weight);
-//		System.out.println("calculate BMR, birthday:" + birthday);
-//		System.out.println("calculate BMR, gender: " + gender);
-		long ageInMillis = new Date().getTime() - birthday.getTime();
-	    Date ageDate = new Date(ageInMillis);
-	    Integer age =  ageDate.getYear();
+	//@SuppressWarnings("deprecation")
+	private Float calculateBMR(Float height, Float weight, Date birthday, Gender gender) {
+//		long ageInMillis = new Date().getTime() - birthday.getTime();
+//	    Date ageDate = new Date(ageInMillis);
+//	    Integer age =  ageDate.getYear();
+		Integer age = calculateAge(birthday);
 		Float BMR = (float) ((10 * weight) + (6.25 * height) - (5 * age));
 		if (gender.equals(Gender.MALE)) {
 			BMR = BMR + 5;
@@ -47,12 +111,12 @@ public class RegularUserService implements RegularUserServiceInterface{
 		return BMR;
 	}
 
-	public static long getDayCount(Date start, Date end) {
+	private static long getDayCount(Date start, Date end) {
 	  long diff = Math.round((end.getTime() - start.getTime()) / (double) 86400000);
 	  return diff;
 	}
 	
-	public Integer calculateDailyCalories(Float BMR, ActivityLevel activityLevel, Float weight, Float goalWeight, Date goalDate) {
+	private Integer calculateDailyCalories(Float BMR, ActivityLevel activityLevel, Float weight, Float goalWeight, Date goalDate) {
 		Integer calories = 0;
 		Date startDate = new Date();
 		Long days = getDayCount(startDate, goalDate);
@@ -72,6 +136,9 @@ public class RegularUserService implements RegularUserServiceInterface{
 		if (activityLevel.equals(ActivityLevel.VERYACTIVE)) {
 			calories = (int) (BMR * 1.5) - dailyCaloriesToBurnOrGain;
 		}
+//		if (calories < BMR) {
+//			return Math.round(BMR);
+//		}
 		return calories;
 	}
 	
@@ -87,14 +154,19 @@ public class RegularUserService implements RegularUserServiceInterface{
 		regularUser.setBMI(BMI);
 		regularUser.setBMR(BMR);
 		regularUser.setDailyCalories(calories);
+		regularUser.setDailyNutrients(nutrientService.getNutrients(calories, regularUser));
 		regularUser.setStreak(0);
 		regularUser.setPoints(0);
 		regularUser.setPremium(false);
-		return regularUserRepository.save(regularUser);
+		regularUserRepository.save(regularUser);
+		for(Nutrient n : regularUser.getDailyNutrients()) {
+			nutrientRepository.save(n);
+		}
+		return regularUser;
 	}
 	
 	@Override
-	public RegularUser update(RegularUser regularUser) {
+	public RegularUser updateAndCalculate(RegularUser regularUser) {
 		Float BMI = calculateBMI(regularUser.getHeight(), regularUser.getWeight());
 		System.out.println("update, BMI: " + BMI);
 		Float BMR = calculateBMR(regularUser.getHeight(), regularUser.getWeight(), regularUser.getBirthday(), regularUser.getGender());
@@ -105,9 +177,17 @@ public class RegularUserService implements RegularUserServiceInterface{
 		regularUser.setBMI(BMI);
 		regularUser.setBMR(BMR);
 		regularUser.setDailyCalories(calories);
-//		regularUser.setStreak(0);
-//		regularUser.setPoints(0);
-//		regularUser.setPremium(false);
+//		regularUser.setDailyNutrients(getNutrients(calories, regularUser));
+//		for(Nutrient n : regularUser.getDailyNutrients()) {
+//			Nutrient nutrient = nutrientService.findById(n.getId());
+//			nutrient.setDailyValue(n.getDailyValue());
+//			nutrientService.update(nutrient);
+//		}
+		return regularUserRepository.save(regularUser);
+	}
+	
+	@Override
+	public RegularUser update(RegularUser regularUser) {
 		return regularUserRepository.save(regularUser);
 	}
 
@@ -115,4 +195,5 @@ public class RegularUserService implements RegularUserServiceInterface{
 	public RegularUser findById(Long id) {
 		return regularUserRepository.findById(id).orElse(null);
 	}
+
 }

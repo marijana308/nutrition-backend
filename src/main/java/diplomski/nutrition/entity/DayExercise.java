@@ -24,17 +24,20 @@ public class DayExercise {
 	private Exercise exercise;
 	
 	private Float time;
+	
+	private Float caloriesBurned;
 
 	public DayExercise() {
 		super();
 	}
 
-	public DayExercise(Long id, Day day, Exercise exercise, Float time) {
+	public DayExercise(Long id, Day day, Exercise exercise, Float time, Float caloriesBurned) {
 		super();
 		this.id = id;
 		this.day = day;
 		this.exercise = exercise;
 		this.time = time;
+		this.caloriesBurned = caloriesBurned;
 	}
 	
 //	public ExerciseDTO toDayExerciseDTO() {
@@ -71,5 +74,13 @@ public class DayExercise {
 
 	public void setTime(Float time) {
 		this.time = time;
+	}
+
+	public Float getCaloriesBurned() {
+		return caloriesBurned;
+	}
+
+	public void setCaloriesBurned(Float caloriesBurned) {
+		this.caloriesBurned = caloriesBurned;
 	}
 }

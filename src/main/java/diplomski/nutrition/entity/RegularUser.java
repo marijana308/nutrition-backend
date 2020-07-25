@@ -48,6 +48,9 @@ public class RegularUser extends User{
 	@Column(name="daily_calories", unique=false, nullable=true)
 	private Integer dailyCalories;
 	
+	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)//orphanRemoval=true
+	private Set<Nutrient> dailyNutrients = new HashSet<>();
+	
 	@Column(name="streak", unique=false, nullable=false)
 	private Integer streak;
 	
@@ -59,18 +62,6 @@ public class RegularUser extends User{
 	
 	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
 	private Set<Day> days = new HashSet<>();
-	
-//	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-//	private Set<Meal> meals = new HashSet<Meal>();
-//	
-//	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-//	private Set<DayExercise> exercises = new HashSet<DayExercise>();
-	
-//	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
-//	private Set<NutritionixExerciseUser> nutritionixExercises = new HashSet<NutritionixExerciseUser>();
-	
-//	@Column(name="total_water_intake", unique=false, nullable=true)
-//	private WaterIntake totalWaterIntake;
 	
 	@OneToMany(mappedBy="user", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
 	private Set<Recipe> recipes = new HashSet<Recipe>();
@@ -86,8 +77,8 @@ public class RegularUser extends User{
 	}
 
 	public RegularUser(Float height, Float weight, Gender gender, Date birthday, ActivityLevel activityLevel,
-			Float goalWeight, Date goalDate, Float bMI, Float bMR, Integer dailyCalories, Integer streak,
-			Integer points, Boolean premium) {
+			Float goalWeight, Date goalDate, Float bMI, Float bMR, Integer dailyCalories, Set<Nutrient> dailyNutrients, 
+			Integer streak, Integer points, Boolean premium) {
 		super();
 		this.height = height;
 		this.weight = weight;
@@ -99,9 +90,50 @@ public class RegularUser extends User{
 		this.BMI = bMI;
 		this.BMR = bMR;
 		this.dailyCalories = dailyCalories;
+		this.dailyNutrients = dailyNutrients;
 		this.streak = streak;
 		this.points = points;
 		this.premium = premium;
+	}
+
+	public Set<Nutrient> getDailyNutrients() {
+		return dailyNutrients;
+	}
+
+	public void setDailyNutrients(Set<Nutrient> dailyNutrients) {
+		this.dailyNutrients = dailyNutrients;
+	}
+
+	public Set<Day> getDays() {
+		return days;
+	}
+
+	public void setDays(Set<Day> days) {
+		this.days = days;
+	}
+
+	public Set<Recipe> getRecipes() {
+		return recipes;
+	}
+
+	public void setRecipes(Set<Recipe> recipes) {
+		this.recipes = recipes;
+	}
+
+	public Set<Food> getCreatedFoods() {
+		return createdFoods;
+	}
+
+	public void setCreatedFoods(Set<Food> createdFoods) {
+		this.createdFoods = createdFoods;
+	}
+
+	public Set<Exercise> getCreatedExercises() {
+		return createdExercises;
+	}
+
+	public void setCreatedExercises(Set<Exercise> createdExercises) {
+		this.createdExercises = createdExercises;
 	}
 
 	public Float getHeight() {

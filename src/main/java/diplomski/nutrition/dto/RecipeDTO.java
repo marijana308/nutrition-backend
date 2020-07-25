@@ -6,14 +6,19 @@ import diplomski.nutrition.entity.Recipe;
 
 public class RecipeDTO {
 
+	private Long id;
 	private String username;
 	private String name;
 	private String directions;
 	private Set<RecipeFoodDTO> foods;
-	private Set<String> nutritionixFoods;//queries for nutritionix API
+	private Set<RecipeNutritionixFoodDTO> nutritionixFoods;//queries for nutritionix API
 	
+	public RecipeDTO() {
+		super();
+	}
+
 	public RecipeDTO(String username, String name, String directions, Set<RecipeFoodDTO> foods,
-			Set<String> nutritionixFoods) {
+			Set<RecipeNutritionixFoodDTO> nutritionixFoods) {
 		super();
 		this.username = username;
 		this.name = name;
@@ -22,17 +27,26 @@ public class RecipeDTO {
 		this.nutritionixFoods = nutritionixFoods;
 	}
 	
-	public RecipeDTO(String username, String name, String directions) {
+	public RecipeDTO(Long id, String username, String name, String directions) {
 		super();
+		this.id = id;
 		this.username = username;
 		this.name = name;
 		this.directions = directions;
 	}
 	
 	public RecipeDTO(Recipe recipe) {
-		this(recipe.getUser().getUsername(), recipe.getName(), recipe.getDirections());
+		this(recipe.getId(), recipe.getUser().getUsername(), recipe.getName(), recipe.getDirections());
 	}
 	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getUsername() {
 		return username;
 	}
@@ -57,10 +71,10 @@ public class RecipeDTO {
 	public void setFoods(Set<RecipeFoodDTO> foods) {
 		this.foods = foods;
 	}
-	public Set<String> getNutritionixFoods() {
+	public Set<RecipeNutritionixFoodDTO> getNutritionixFoods() {
 		return nutritionixFoods;
 	}
-	public void setNutritionixFoods(Set<String> nutritionixFoods) {
+	public void setNutritionixFoods(Set<RecipeNutritionixFoodDTO> nutritionixFoods) {
 		this.nutritionixFoods = nutritionixFoods;
 	}
 	

@@ -21,18 +21,18 @@ public class RecipeFood {
 	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
 	private Food food;
 	
-	private Float amount;
+	private Float quantity;
 
 	public RecipeFood() {
 		super();
 	}
 
-	public RecipeFood(Long id, Recipe recipe, Food food, Float amount) {
+	public RecipeFood(Long id, Recipe recipe, Food food, Float quantity) {
 		super();
 		this.id = id;
 		this.recipe = recipe;
 		this.food = food;
-		this.amount = amount;
+		this.quantity = quantity;
 	}
 
 	public Long getId() {
@@ -59,11 +59,11 @@ public class RecipeFood {
 		this.food = food;
 	}
 
-	public Float getAmount() {
-		return amount;
+	public Float getQuantity() {
+		return quantity;
 	}
 
-	public void setAmount(Float amount) {
-		this.amount = amount;
+	public void setQuantity(Float quantity) {
+		this.quantity = quantity;
 	}
 }

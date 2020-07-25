@@ -48,17 +48,17 @@ public class Meal {
 		this.nutritionixFoods = nutritionixFoods;
 	}
 	
-	public MealDTO toMealDTO() {
-		Set<FoodMealDTO> foodMealDTOs = new HashSet<FoodMealDTO>();
-		for(FoodMeal foodMeal : this.foods) {
-			foodMealDTOs.add(foodMeal.toFoodMealDTO());
-		}
-		Set<NutritionixFoodMealDTO> nutritionixFoodMealDTOs = new HashSet<NutritionixFoodMealDTO>();
-		for(NutritionixFoodMeal nutritionixFoodMeal : this.nutritionixFoods) {
-			nutritionixFoodMealDTOs.add(nutritionixFoodMeal.toNutritionixFoodMealDTO());
-		}
-		return new MealDTO(this.mealType, foodMealDTOs , nutritionixFoodMealDTOs);
-	}
+//	public MealDTO toMealDTO() {
+//		Set<FoodMealDTO> foodMealDTOs = new HashSet<FoodMealDTO>();
+//		for(FoodMeal foodMeal : this.foods) {
+//			foodMealDTOs.add(foodMeal.toFoodMealDTO());
+//		}
+//		Set<NutritionixFoodMealDTO> nutritionixFoodMealDTOs = new HashSet<NutritionixFoodMealDTO>();
+//		for(NutritionixFoodMeal nutritionixFoodMeal : this.nutritionixFoods) {
+//			nutritionixFoodMealDTOs.add(nutritionixFoodMeal.toNutritionixFoodMealDTO());
+//		}
+//		return new MealDTO(this.mealType, foodMealDTOs , nutritionixFoodMealDTOs);
+//	}
 
 	public Long getId() {
 		return id;

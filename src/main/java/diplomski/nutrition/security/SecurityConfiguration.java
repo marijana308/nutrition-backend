@@ -3,9 +3,7 @@ package diplomski.nutrition.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -89,47 +87,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		httpSecurity.addFilterBefore(authenticationTokenFilterBean(),
 				UsernamePasswordAuthenticationFilter.class);
 	}
-//
-//	@Bean
-//	public DaoAuthenticationProvider authProvider() {
-//		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//		authProvider.setUserDetailsService(userService);
-//		authProvider.setPasswordEncoder(passwordEncoder());
-//		return authProvider;
-//	}
-//
-//	@Autowired
-//	public void globalUserDetails(AuthenticationManagerBuilder auth) {
-//		auth.authenticationProvider(authProvider());
-//
-//	}
-//	
-//	@Bean
-//	public AuthenticationTokenFilter authenticationTokenFilterBean()
-//			throws Exception {
-//		AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
-//		authenticationTokenFilter
-//				.setAuthenticationManager(authenticationManagerBean());
-//		return authenticationTokenFilter;
-//	}
-//
-//	@Override
-//	protected void configure(HttpSecurity http) throws Exception {
-//		http
-//			.cors().and()
-//			.csrf().disable()
-//			.sessionManagement()
-//			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//		
-//		http.addFilterBefore(authenticationTokenFilterBean(),
-//				UsernamePasswordAuthenticationFilter.class);
-//	}
-//	
-//
-//	@Override
-//	@Bean
-//	public AuthenticationManager authenticationManagerBean() throws Exception {
-//		return super.authenticationManagerBean();
-//	}
 
 }

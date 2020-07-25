@@ -2,16 +2,18 @@ package diplomski.nutrition.dto;
 
 import java.util.Set;
 
+import diplomski.nutrition.entity.Meal;
 import diplomski.nutrition.enumeration.MealType;
 
 public class MealDTO {
 	
+	private Long id;
 	private MealType mealType;
 	private Set<FoodMealDTO> foods;
 	private Set<NutritionixFoodMealDTO> nutritionixFoods;
-
-	public MealType getMealType() {
-		return mealType;
+	
+	public MealDTO() {
+		super();
 	}
 	
 	public MealDTO(MealType mealType, Set<FoodMealDTO> foods, Set<NutritionixFoodMealDTO> nutritionixFoods) {
@@ -19,6 +21,28 @@ public class MealDTO {
 		this.mealType = mealType;
 		this.foods = foods;
 		this.nutritionixFoods = nutritionixFoods;
+	}
+	
+	public MealDTO(Long id, MealType mealType) {
+		super();
+		this.id = id;
+		this.mealType = mealType;
+	}
+	
+	public MealDTO(Meal meal) {
+		this(meal.getId(), meal.getMealType());
+	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public MealType getMealType() {
+		return mealType;
 	}
 
 	public void setMealType(MealType mealType) {

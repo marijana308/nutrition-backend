@@ -18,4 +18,14 @@ public class RecipeFoodService implements RecipeFoodServiceInterface{
 		return recipeFoodRepository.save(recipeFood);
 	}
 
+	@Override
+	public RecipeFood findById(Long id) {
+		return recipeFoodRepository.findById(id).orElse(null);
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		recipeFoodRepository.deleteById(id);
+	}
+
 }

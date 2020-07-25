@@ -31,4 +31,15 @@ public class RecipeService implements RecipeServiceInterface{
 		}
 		return recipes;
 	}
+
+	@Override
+	public Recipe findById(Long id) {
+		return recipeRepository.findById(id).orElse(null);
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		recipeRepository.deleteById(id);
+	}
+
 }

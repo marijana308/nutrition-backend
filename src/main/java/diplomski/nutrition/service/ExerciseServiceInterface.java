@@ -2,6 +2,7 @@ package diplomski.nutrition.service;
 
 import java.util.List;
 
+import diplomski.nutrition.entity.DayExercise;
 import diplomski.nutrition.entity.Exercise;
 
 public interface ExerciseServiceInterface {
@@ -17,5 +18,9 @@ public interface ExerciseServiceInterface {
 	List<Exercise> findExercisesCreatedByAdmins();
 	
 	List<Exercise> findExercisesByUsername(String username);
+	
+	List<Exercise> searchExercisesCreatedByAdmins(String query);
+	
+	List<Exercise> searchExercisesByUsername(String username, String query);
 
 }

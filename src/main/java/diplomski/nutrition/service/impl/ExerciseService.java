@@ -6,8 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import diplomski.nutrition.entity.DayExercise;
 import diplomski.nutrition.entity.Exercise;
+import diplomski.nutrition.entity.NutritionixFoodMeal;
 import diplomski.nutrition.enumeration.Role;
+import diplomski.nutrition.repository.DayExerciseRepository;
 import diplomski.nutrition.repository.ExerciseRepository;
 import diplomski.nutrition.service.ExerciseServiceInterface;
 
@@ -16,6 +19,9 @@ public class ExerciseService implements ExerciseServiceInterface{
 
 	@Autowired
 	ExerciseRepository exerciseRepository;
+	
+	@Autowired
+	DayExerciseRepository dayExerciseRepository;
 
 	@Override
 	public Exercise findByName(String name) {
@@ -63,4 +69,27 @@ public class ExerciseService implements ExerciseServiceInterface{
 		}
 		return exercises;
 	}
+
+	@Override
+	public List<Exercise> searchExercisesCreatedByAdmins(String query) {
+		List<Exercise> exercises = new ArrayList<Exercise>();
+		for(Exercise exercise : exerciseRepository.findAll()) {
+			if(exercise.getCreatedByUser().getRole().equals(Role.ADMIN) && exercise.getName().toLowerCase().contains(query.toLowerCase())) {
+				exercises.add(exercise);
+			}
+		}
+		return exercises;
+	}
+
+	@Override
+	public List<Exercise> searchExercisesByUsername(String username, String query) {
+		List<Exercise> exercises = new ArrayList<Exercise>();
+		for(Exercise exercise : exerciseRepository.findAll()) {
+			if(exercise.getCreatedByUser().getUsername().equals(username) && exercise.getName().toLowerCase().contains(query.toLowerCase())) {
+				exercises.add(exercise);
+			}
+		}
+		return exercises;
+	}
+	
 }

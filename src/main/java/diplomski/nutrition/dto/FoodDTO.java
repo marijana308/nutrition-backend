@@ -8,8 +8,6 @@ public class FoodDTO {
 	private String username;
 	private String name;
 	private Integer calories;
-//	private String servingSize;
-//	private Float servingSizeQuantity;
 	private Float totalFat;
 	private Float saturatedFat;
 	private Float cholesterol;
@@ -18,17 +16,10 @@ public class FoodDTO {
 	private Float fiber;
 	private Float sugars;
 	private Float protein;
-	private Float vitaminA;
-	private Float vitaminC;
-	private Float vitaminD;
-	private Float calcium;
-	private Float iron;
-	private Float phosphorus;
 	private Float potasium;
 	
 	public FoodDTO(Long id, String username, String name, Integer calories, Float totalFat, Float saturatedFat, Float cholesterol,
-			Float sodium, Float totalCarbs, Float fiber, Float sugars, Float protein, Float vitaminA, Float vitaminC,
-			Float vitaminD, Float calcium, Float iron, Float phosphorus, Float potasium) {
+			Float sodium, Float totalCarbs, Float fiber, Float sugars, Float protein, Float potasium) {
 		super();
 		this.id = id;
 		this.username = username;
@@ -42,20 +33,12 @@ public class FoodDTO {
 		this.fiber = fiber;
 		this.sugars = sugars;
 		this.protein = protein;
-		this.vitaminA = vitaminA;
-		this.vitaminC = vitaminC;
-		this.vitaminD = vitaminD;
-		this.calcium = calcium;
-		this.iron = iron;
-		this.phosphorus = phosphorus;
 		this.potasium = potasium;
 	}
 
 	public FoodDTO(Food food) {
 		this(food.getId(), food.getUser().getUsername(), food.getName(), food.getTotalCalories(), food.getTotalFat(), food.getSaturatedFat(), 
-				food.getCholesterol(), food.getSodium(), food.getTotalCarbs(), food.getFiber(), food.getSugars(), food.getProtein(), 
-				food.getVitaminA(), food.getVitaminC(), food.getVitaminD(), food.getCalcium(), food.getIron(), 
-				food.getPhosphorus(), food.getPotasium());
+				food.getCholesterol(), food.getSodium(), food.getTotalCarbs(), food.getFiber(), food.getSugars(), food.getProtein(), food.getPotasium());
 	}
 
 	public Long getId() {
@@ -89,22 +72,6 @@ public class FoodDTO {
 	public void setCalories(Integer calories) {
 		this.calories = calories;
 	}
-
-//	public String getServingSize() {
-//		return servingSize;
-//	}
-//
-//	public void setServingSize(String servingSize) {
-//		this.servingSize = servingSize;
-//	}
-//
-//	public Float getServingSizeQuantity() {
-//		return servingSizeQuantity;
-//	}
-//
-//	public void setServingSizeQuantity(Float servingSizeQuantity) {
-//		this.servingSizeQuantity = servingSizeQuantity;
-//	}
 
 	public Float getTotalFat() {
 		return totalFat;
@@ -168,54 +135,6 @@ public class FoodDTO {
 
 	public void setProtein(Float protein) {
 		this.protein = protein;
-	}
-
-	public Float getVitaminA() {
-		return vitaminA;
-	}
-
-	public void setVitaminA(Float vitaminA) {
-		this.vitaminA = vitaminA;
-	}
-
-	public Float getVitaminC() {
-		return vitaminC;
-	}
-
-	public void setVitaminC(Float vitaminC) {
-		this.vitaminC = vitaminC;
-	}
-
-	public Float getVitaminD() {
-		return vitaminD;
-	}
-
-	public void setVitaminD(Float vitaminD) {
-		this.vitaminD = vitaminD;
-	}
-
-	public Float getCalcium() {
-		return calcium;
-	}
-
-	public void setCalcium(Float calcium) {
-		this.calcium = calcium;
-	}
-
-	public Float getIron() {
-		return iron;
-	}
-
-	public void setIron(Float iron) {
-		this.iron = iron;
-	}
-
-	public Float getPhosphorus() {
-		return phosphorus;
-	}
-
-	public void setPhosphorus(Float phosphorus) {
-		this.phosphorus = phosphorus;
 	}
 
 	public Float getPotasium() {

@@ -18,4 +18,14 @@ public class RecipeNutritionixFoodService implements RecipeNutritionixFoodServic
 		return repository.save(rnf);
 	}
 
+	@Override
+	public RecipeNutritionixFood findById(Long id) {
+		return repository.findById(id).orElse(null);
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		repository.deleteById(id);
+	}
+
 }

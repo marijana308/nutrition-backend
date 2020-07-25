@@ -16,8 +16,12 @@ public interface FoodServiceInterface {
 	
 	List<Food> findFoodsByUsername(String username);
 	
+	List<Food> searchFoodsByUsername(String username, String query);
+	
 	List<Food> findAll();
 	
 	List<Food> findFoodsCreatedByAdmins();
+	
+	List<Food> searchFoodsCreatedByAdmins(String query);
 	
 }
