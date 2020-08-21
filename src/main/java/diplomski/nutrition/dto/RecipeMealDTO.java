@@ -1,12 +1,14 @@
 package diplomski.nutrition.dto;
 
-import diplomski.nutrition.entity.RecipeNutritionixFood;
+import diplomski.nutrition.entity.RecipeMeal;
 
-public class RecipeNutritionixFoodDTO {
+public class RecipeMealDTO {
 
 	private Long id;
 	private Float quantity;
 	private String servingSize;
+	private Long recipeId;
+	
 	private String name;
 	
 	private Float servingWeight;
@@ -21,17 +23,18 @@ public class RecipeNutritionixFoodDTO {
 	private Float potasium;
 	private Float fiber;
 	
-	public RecipeNutritionixFoodDTO() {
+	public RecipeMealDTO() {
 		super();
 	}
-
-	public RecipeNutritionixFoodDTO(Long id, Float quantity, String servingSize, String name, Float servingWeight,
+	
+	public RecipeMealDTO(Long id, Float quantity, String servingSize, Long recipeId, String name, Float servingWeight,
 			Integer calories, Float carbs, Float sugars, Float totalFat, Float saturatedFat, Float cholesterol,
 			Float protein, Float sodium, Float potasium, Float fiber) {
 		super();
 		this.id = id;
 		this.quantity = quantity;
 		this.servingSize = servingSize;
+		this.recipeId = recipeId;
 		this.name = name;
 		this.servingWeight = servingWeight;
 		this.calories = calories;
@@ -46,10 +49,10 @@ public class RecipeNutritionixFoodDTO {
 		this.fiber = fiber;
 	}
 	
-	public RecipeNutritionixFoodDTO(RecipeNutritionixFood rnf) {
-		this(rnf.getId(), rnf.getQuantity(), rnf.getServingSize(), rnf.getQuery(), rnf.getServingWeight(), rnf.getCalories(), 
-				rnf.getCarbs(), rnf.getSugars(), rnf.getTotalFat(), rnf.getSaturatedFat(), rnf.getCholesterol(), rnf.getProtein(),
-				rnf.getSodium(), rnf.getPotasium(), rnf.getFiber());
+	public RecipeMealDTO(RecipeMeal rm) {
+		this(rm.getId(), rm.getQuantity(), rm.getServingSize(), rm.getRecipe().getId(), rm.getRecipe().getName(), rm.getServingWeight(),
+			rm.getCalories(), rm.getCarbs(), rm.getSugars(), rm.getTotalFat(), rm.getSaturatedFat(), rm.getCholesterol(), rm.getProtein(),
+			rm.getSodium(), rm.getPotasium(), rm.getFiber());
 	}
 
 	public Long getId() {
@@ -76,11 +79,19 @@ public class RecipeNutritionixFoodDTO {
 		this.servingSize = servingSize;
 	}
 
+	public Long getRecipeId() {
+		return recipeId;
+	}
+
+	public void setRecipeId(Long recipeId) {
+		this.recipeId = recipeId;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	public void setQuery(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -171,9 +182,4 @@ public class RecipeNutritionixFoodDTO {
 	public void setFiber(Float fiber) {
 		this.fiber = fiber;
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
 }

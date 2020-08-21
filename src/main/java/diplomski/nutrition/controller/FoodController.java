@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import diplomski.nutrition.dto.FoodDTO;
 import diplomski.nutrition.dto.FoodMealDTO;
-import diplomski.nutrition.dto.MealDTO;
 import diplomski.nutrition.dto.NutritionixFoodMealDTO;
 import diplomski.nutrition.entity.Food;
 import diplomski.nutrition.entity.FoodMeal;
-import diplomski.nutrition.entity.Meal;
 import diplomski.nutrition.entity.NutritionixFoodMeal;
 import diplomski.nutrition.entity.User;
 import diplomski.nutrition.repository.UserRepository;

@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import diplomski.nutrition.dto.NutrientDTO;
-import diplomski.nutrition.dto.UserDTO;
 import diplomski.nutrition.entity.Nutrient;
-import diplomski.nutrition.entity.RegularUser;
 import diplomski.nutrition.entity.User;
 import diplomski.nutrition.repository.UserRepository;
 import diplomski.nutrition.service.impl.NutrientService;

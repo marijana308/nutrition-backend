@@ -16,19 +16,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import diplomski.nutrition.dto.LoginDTO;
-import diplomski.nutrition.dto.TokenDTO;
-import diplomski.nutrition.dto.UserDTO;
 import diplomski.nutrition.dto.UserDetailsDTO;
 import diplomski.nutrition.entity.RegularUser;
 import diplomski.nutrition.entity.User;
-import diplomski.nutrition.enumeration.Role;
 import diplomski.nutrition.repository.UserRepository;
 import diplomski.nutrition.security.TokenUtils;
 import diplomski.nutrition.service.impl.RegularUserService;
 
 @RestController
-//@RequestMapping("/api/users")
-//@SuppressWarnings({ "rawtypes", "unchecked" })
 @CrossOrigin("http://localhost:3000")
 public class UserController {
 

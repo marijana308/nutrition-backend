@@ -26,13 +26,6 @@ public class NutritionixFoodMealDTO {
 		super();
 	}
 	
-//	public NutritionixFoodMealDTO(Float quantity, String servingSize, String name) {
-//		super();
-//		this.quantity = quantity;
-//		this.servingSize = servingSize;
-//		this.name = name;
-//	}
-	
 	public NutritionixFoodMealDTO(NutritionixFoodMeal nfm) {
 		this(nfm.getId(), nfm.getQuantity(), nfm.getServingSize(), nfm.getFoodNameQuery(), nfm.getServingWeight(), nfm.getCalories(),
 				nfm.getCarbs(), nfm.getSugars(), nfm.getTotalFat(), nfm.getSaturatedFat(), nfm.getCholesterol(), nfm.getProtein(),

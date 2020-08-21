@@ -1,5 +1,8 @@
 package diplomski.nutrition.service.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,17 @@ public class RecipeFoodService implements RecipeFoodServiceInterface{
 	@Override
 	public void deleteById(Long id) {
 		recipeFoodRepository.deleteById(id);
+	}
+
+	@Override
+	public Set<RecipeFood> findFoodsByRecipeId(Long recipeid) {
+		Set<RecipeFood> foods = new HashSet<RecipeFood>();
+		for(RecipeFood rf: recipeFoodRepository.findAll()) {
+			if(rf.getRecipe().getId() == recipeid) {
+				foods.add(rf);
+			}
+		}
+		return foods;
 	}
 
 }

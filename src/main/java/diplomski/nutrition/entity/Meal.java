@@ -35,6 +35,9 @@ public class Meal {
 	@OneToMany(mappedBy = "meal", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
 	private Set<NutritionixFoodMeal> nutritionixFoods = new HashSet<NutritionixFoodMeal>();
 	
+	@OneToMany(mappedBy = "meal", fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+	private Set<RecipeMeal> recipes = new HashSet<RecipeMeal>();
+	
 	public Meal() {
 		super();
 	}
@@ -47,18 +50,6 @@ public class Meal {
 		this.foods = foods;
 		this.nutritionixFoods = nutritionixFoods;
 	}
-	
-//	public MealDTO toMealDTO() {
-//		Set<FoodMealDTO> foodMealDTOs = new HashSet<FoodMealDTO>();
-//		for(FoodMeal foodMeal : this.foods) {
-//			foodMealDTOs.add(foodMeal.toFoodMealDTO());
-//		}
-//		Set<NutritionixFoodMealDTO> nutritionixFoodMealDTOs = new HashSet<NutritionixFoodMealDTO>();
-//		for(NutritionixFoodMeal nutritionixFoodMeal : this.nutritionixFoods) {
-//			nutritionixFoodMealDTOs.add(nutritionixFoodMeal.toNutritionixFoodMealDTO());
-//		}
-//		return new MealDTO(this.mealType, foodMealDTOs , nutritionixFoodMealDTOs);
-//	}
 
 	public Long getId() {
 		return id;
@@ -98,5 +89,13 @@ public class Meal {
 
 	public void setNutritionixFoods(Set<NutritionixFoodMeal> nutritionixFoods) {
 		this.nutritionixFoods = nutritionixFoods;
+	}
+
+	public Set<RecipeMeal> getRecipes() {
+		return recipes;
+	}
+
+	public void setRecipes(Set<RecipeMeal> recipes) {
+		this.recipes = recipes;
 	}
 }

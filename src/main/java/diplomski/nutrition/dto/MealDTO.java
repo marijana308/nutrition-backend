@@ -11,6 +11,7 @@ public class MealDTO {
 	private MealType mealType;
 	private Set<FoodMealDTO> foods;
 	private Set<NutritionixFoodMealDTO> nutritionixFoods;
+	private Set<RecipeMealDTO> recipes;
 	
 	public MealDTO() {
 		super();
@@ -60,5 +61,13 @@ public class MealDTO {
 	}
 	public void setNutritionixFoods(Set<NutritionixFoodMealDTO> nutritionixFoods) {
 		this.nutritionixFoods = nutritionixFoods;
+	}
+
+	public Set<RecipeMealDTO> getRecipes() {
+		return recipes;
+	}
+
+	public void setRecipes(Set<RecipeMealDTO> recipes) {
+		this.recipes = recipes;
 	}
 }

@@ -27,12 +27,6 @@ public class FoodMealDTO {
 		super();
 	}
 	
-//	public FoodMealDTO(Float quantity, Long foodId) {
-//		super();
-//		this.quantity = quantity;
-//		this.foodId = foodId;
-//	}
-	
 	public FoodMealDTO(FoodMeal fm) {
 		this(fm.getId(), fm.getQuantity(), fm.getServingSize(), fm.getFood().getId(), fm.getFood().getName(), fm.getServingWeight(), fm.getCalories(),
 				fm.getCarbs(), fm.getSugars(), fm.getTotalFat(), fm.getSaturatedFat(), fm.getCholesterol(), fm.getProtein(), fm.getSodium(),

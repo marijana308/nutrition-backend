@@ -52,10 +52,6 @@ public class NutritionixFoodMeal {
 		this.meal = meal;
 		this.foodNameQuery = foodNameQuery;
 	}
-	
-//	public NutritionixFoodMealDTO toNutritionixFoodMealDTO() {
-//		return new NutritionixFoodMealDTO(this.quantity, this.servingSize, this.foodNameQuery);
-//	}
 
 	public Long getId() {
 		return id;

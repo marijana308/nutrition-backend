@@ -42,4 +42,15 @@ public class RecipeService implements RecipeServiceInterface{
 		recipeRepository.deleteById(id);
 	}
 
+	@Override
+	public List<Recipe> searchRecipes(String username, String query) {
+		List<Recipe> recipes = new ArrayList<Recipe>();
+		for(Recipe r : recipeRepository.findAll()) {
+			if(r.getUser().getUsername().equals(username) && r.getName().toLowerCase().contains(query.toLowerCase())) {
+				recipes.add(r);
+			}
+		}
+		return recipes;
+	}
+
 }

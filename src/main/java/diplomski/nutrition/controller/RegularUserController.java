@@ -2,7 +2,6 @@ package diplomski.nutrition.controller;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import diplomski.nutrition.dto.CaloriesDTO;
-import diplomski.nutrition.dto.DayDTO;
 import diplomski.nutrition.dto.UserDTO;
 import diplomski.nutrition.dto.UserDetailsDTO;
 import diplomski.nutrition.entity.Day;
@@ -66,18 +63,6 @@ public class RegularUserController {
 		return new ResponseEntity<>(new UserDTO(regular), HttpStatus.CREATED);
 	}
 	
-//	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-//	@RequestMapping(value = "/api/userDetails/{username}", method = RequestMethod.GET)
-//	public ResponseEntity<UserDetailsDTO> getUserByUsername(@PathVariable String username) {
-//		User u = userRepository.findByUsername(username);
-//		Long userID = u.getId();
-//		RegularUser user = regularUserService.findById(userID);
-//		if(user == null) {
-//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//		}
-//		return new ResponseEntity<>(new UserDetailsDTO(user), HttpStatus.OK);
-//	}
-	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
 	@RequestMapping(value = "/api/updateUser", method = RequestMethod.PUT, consumes = "application/json")
 	public ResponseEntity<UserDetailsDTO> updateUser(@RequestBody UserDTO userDTO){
@@ -102,8 +87,6 @@ public class RegularUserController {
 		
 		for(Nutrient n : user.getDailyNutrients()) {
 			nutrientService.updateDailyValue(n.getId(), user.getDailyCalories());
-			
-//			nutrientService.update(n);
 		}
 		System.out.println("update user, user calories: " + user.getDailyCalories());
 		return new ResponseEntity<>(new UserDetailsDTO(user), HttpStatus.OK);
@@ -142,20 +125,19 @@ public class RegularUserController {
 		return new ResponseEntity<>(new UserDTO(user), HttpStatus.OK);
 	}
 	
-	//@PreAuthorize("hasAuthority('REGULAR')")
-	@RequestMapping(value = "/api/updateRole/{username}", method = RequestMethod.GET)
-	public ResponseEntity<UserDTO> updateCalories(@PathVariable String username){
-		User u = userRepository.findByUsername(username);
-		if(u == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		RegularUser user = regularUserService.findById(u.getId());
-		user.setRole(Role.PREMIUM);
-		
-		regularUserService.update(user);
-		
-		return new ResponseEntity<>(new UserDTO(user), HttpStatus.OK);
-	}
+//	@RequestMapping(value = "/api/updateRole/{username}", method = RequestMethod.GET)
+//	public ResponseEntity<UserDTO> updateRole(@PathVariable String username){
+//		User u = userRepository.findByUsername(username);
+//		if(u == null) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+//		RegularUser user = regularUserService.findById(u.getId());
+//		user.setRole(Role.PREMIUM);
+//		
+//		regularUserService.update(user);
+//		
+//		return new ResponseEntity<>(new UserDTO(user), HttpStatus.OK);
+//	}
 	
 	@PreAuthorize("hasAuthority('PREMIUM')")
 	@RequestMapping(value = "/api/updateCalories/{username}", method = RequestMethod.PUT, consumes = "application/json")

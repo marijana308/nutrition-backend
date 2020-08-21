@@ -1,5 +1,7 @@
 package diplomski.nutrition.service;
 
+import java.util.Set;
+
 import diplomski.nutrition.entity.RecipeNutritionixFood;
 
 public interface RecipeNutritionixFoodServiceInterface {
@@ -9,4 +11,6 @@ public interface RecipeNutritionixFoodServiceInterface {
 	RecipeNutritionixFood findById(Long id);
 	
 	void deleteById(Long id);
+	
+	Set<RecipeNutritionixFood> findFoodsByRecipeId(Long recipeid);
 }

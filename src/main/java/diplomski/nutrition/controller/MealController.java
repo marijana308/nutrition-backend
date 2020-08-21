@@ -28,7 +28,6 @@ public class MealController {
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
 	@RequestMapping(value = "{dayid}",method = RequestMethod.GET)
 	public ResponseEntity<List<MealDTO>> getMealsByDayId(@PathVariable Long dayid){
-		//Day day = dayService.findDayByDateAndUsername(dayDTO.getDate(), dayDTO.getUsername());
 		List<Meal> meals = mealService.findMealsByDayId(dayid);
 		List<MealDTO> mealDTOs = new ArrayList<MealDTO>();
 		for(Meal m: meals) {

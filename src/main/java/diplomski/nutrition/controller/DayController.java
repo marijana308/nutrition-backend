@@ -1,5 +1,6 @@
 package diplomski.nutrition.controller;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 
@@ -20,12 +21,15 @@ import diplomski.nutrition.dto.DayNutritionixExerciseDTO;
 import diplomski.nutrition.dto.FoodMealDTO;
 import diplomski.nutrition.dto.MealDTO;
 import diplomski.nutrition.dto.NutritionixFoodMealDTO;
+import diplomski.nutrition.dto.RecipeMealDTO;
 import diplomski.nutrition.entity.Day;
 import diplomski.nutrition.entity.DayExercise;
 import diplomski.nutrition.entity.FoodMeal;
 import diplomski.nutrition.entity.Meal;
 import diplomski.nutrition.entity.NutritionixExerciseDay;
 import diplomski.nutrition.entity.NutritionixFoodMeal;
+import diplomski.nutrition.entity.RecipeMeal;
+import diplomski.nutrition.entity.RegularUser;
 import diplomski.nutrition.entity.User;
 import diplomski.nutrition.enumeration.MealType;
 import diplomski.nutrition.repository.UserRepository;
@@ -37,6 +41,9 @@ import diplomski.nutrition.service.impl.FoodService;
 import diplomski.nutrition.service.impl.MealService;
 import diplomski.nutrition.service.impl.NutritionixDayExerciseService;
 import diplomski.nutrition.service.impl.NutritionixFoodMealService;
+import diplomski.nutrition.service.impl.RecipeMealService;
+import diplomski.nutrition.service.impl.RecipeService;
+import diplomski.nutrition.service.impl.RegularUserService;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -56,7 +63,13 @@ public class DayController {
 	private FoodMealService foodMealService;
 	
 	@Autowired
+	private RecipeMealService recipeMealService;
+	
+	@Autowired
 	private MealService mealService;
+	
+	@Autowired
+	private RecipeService recipeService;
 	
 	@Autowired
 	private NutritionixFoodMealService nutritionixFoodMealService;
@@ -66,6 +79,9 @@ public class DayController {
 	
 	@Autowired
 	private NutritionixDayExerciseService nutritionixDayExerciseService;
+	
+	@Autowired
+	private RegularUserService regularUserService;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -78,6 +94,12 @@ public class DayController {
 			return new ResponseEntity<DayDTO>(new DayDTO(), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<DayDTO>(new DayDTO(day), HttpStatus.OK);
+	}
+	
+	private Date pastDate(Integer number) {
+	    final Calendar cal = Calendar.getInstance();
+	    cal.add(Calendar.DATE, number);
+	    return cal.getTime();
 	}
 	
 	private Day createNewDay(Date date, String username) {
@@ -102,6 +124,24 @@ public class DayController {
 		snack.setMealType(MealType.SNACK);
 		snack.setDay(day);
 		mealService.save(snack);
+		
+		Day today = dayService.findDayByDateAndUsername(new Date(), username);
+		Day yesterday = dayService.findDayByDateAndUsername(pastDate(-1), username);
+		RegularUser regularUser = regularUserService.findById(user.getId());
+		
+		if (yesterday == null) {
+			regularUser.setStreak(0);
+		}
+		if(yesterday != null && today != null) {
+			regularUser.setStreak(regularUser.getStreak() + 1);
+		}
+		
+		if(regularUser.getStreak() % 7 == 0 && regularUser.getStreak() != 0) {
+			regularUser.setPoints(regularUser.getPoints() + 10);
+		}
+		
+		regularUserService.update(regularUser);
+		
 		return day;
 	}
 	
@@ -185,7 +225,6 @@ public class DayController {
 		if(day == null) {
 			day = createNewDay(dayDTO.getDate(), dayDTO.getUsername());
 		}
-		//Set<DayExercise> exercises = dayExerciseService.findExercisesByDayId(day.getId());
 		DayExercise dayExercise = new DayExercise();
 		for(DayExerciseDTO exerciseDTO : dayDTO.getExercises()) {
 			if(exerciseDTO.getId() == null) {
@@ -193,11 +232,9 @@ public class DayController {
 				dayExercise.setTime(exerciseDTO.getTime());
 				dayExercise.setDay(day);
 				dayExercise.setCaloriesBurned(exerciseDTO.getCaloriesBurned());
-				//exercises.add(dayExercise);
 				dayExerciseService.save(dayExercise);
 			}
 		}
-		
 		return new ResponseEntity<DayExerciseDTO>(new DayExerciseDTO(dayExercise), HttpStatus.OK);
 	}
 	
@@ -208,7 +245,6 @@ public class DayController {
 		if(day == null) {
 			day = createNewDay(dayDTO.getDate(), dayDTO.getUsername());
 		}
-		//Set<NutritionixExerciseDay> nutritionixExercises = nutritionixDayExerciseService.findExercisesByDayId(day.getId());
 		NutritionixExerciseDay nutritionixExerciseDay = new NutritionixExerciseDay();
 		for(DayNutritionixExerciseDTO nutritionixExerciseDTO : dayDTO.getNutritionixExercises()) {
 			if(nutritionixExerciseDTO.getId() == null) {
@@ -217,8 +253,43 @@ public class DayController {
 				nutritionixDayExerciseService.save(nutritionixExerciseDay);
 			}
 		}
-		
 		return new ResponseEntity<DayNutritionixExerciseDTO>(new DayNutritionixExerciseDTO(nutritionixExerciseDay), HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/addRecipe",method = RequestMethod.PUT, consumes = "application/json")
+	public ResponseEntity<RecipeMealDTO> addRecipeToDay(@RequestBody DayDTO dayDTO){
+		Day day = dayService.findDayByDateAndUsername(dayDTO.getDate(), dayDTO.getUsername());
+		if(day == null) {
+			day = createNewDay(dayDTO.getDate(), dayDTO.getUsername());
+		}
+		RecipeMeal recipeMeal = new RecipeMeal();
+		for(MealDTO mealDTO : dayDTO.getMeals()) {
+			Meal meal = mealService.findMealByDayIdAndMealType(day.getId(), mealDTO.getMealType());
+			Set<RecipeMeal> recipes = recipeMealService.findRecipesByMealId(mealDTO.getId());
+			for(RecipeMealDTO recipeMealDTO: mealDTO.getRecipes()) {
+				if(recipeMealDTO.getId() == null) {
+					recipeMeal.setQuantity(recipeMealDTO.getQuantity());
+					recipeMeal.setServingSize(recipeMealDTO.getServingSize());
+					recipeMeal.setRecipe(recipeService.findById(recipeMealDTO.getRecipeId()));
+					recipeMeal.setMeal(meal); 
+					recipeMeal.setServingWeight(recipeMealDTO.getServingWeight());
+					recipeMeal.setCalories(recipeMealDTO.getCalories());
+					recipeMeal.setCarbs(recipeMealDTO.getCarbs());
+					recipeMeal.setSugars(recipeMealDTO.getSugars());
+					recipeMeal.setTotalFat(recipeMealDTO.getTotalFat());
+					recipeMeal.setSaturatedFat(recipeMealDTO.getSaturatedFat());
+					recipeMeal.setCholesterol(recipeMealDTO.getCholesterol());
+					recipeMeal.setProtein(recipeMealDTO.getProtein());
+					recipeMeal.setSodium(recipeMealDTO.getSodium());
+					recipeMeal.setPotasium(recipeMealDTO.getPotasium());
+					recipeMeal.setFiber(recipeMealDTO.getFiber());
+					recipes.add(recipeMeal);
+					recipeMealService.save(recipeMeal);
+				}
+			}
+		}
+		return new ResponseEntity<RecipeMealDTO>(new RecipeMealDTO(recipeMeal), HttpStatus.OK);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
@@ -278,231 +349,3 @@ public class DayController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }
-
-//@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-//@RequestMapping(method = RequestMethod.POST, consumes = "application/json")
-//public ResponseEntity<Void> addDay(@RequestBody DayDTO dayDTO){
-//	Day day = new Day();
-//	User user = userRepository.findByUsername(dayDTO.getUsername());
-//	Set<Meal> meals= new HashSet<Meal>();
-//	for(MealDTO mealDTO : dayDTO.getMeals()) {
-//		Meal meal = new Meal();
-//		meal.setMealType(mealDTO.getMealType());
-//		Set<FoodMeal> foods = new HashSet<FoodMeal>();
-//		for(FoodMealDTO foodMealDTO: mealDTO.getFoods()) {
-//			FoodMeal foodMeal= new FoodMeal();
-//			foodMeal.setQuantity(foodMealDTO.getQuantity());
-//			foodMeal.setServingSize(foodMealDTO.getServingSize());
-//			foodMeal.setFood(foodService.findById(foodMealDTO.getFoodId()));
-//			foodMeal.setMeal(meal); 
-//			foodMeal.setServingWeight(foodMealDTO.getServingWeight());
-//			foodMeal.setCalories(foodMealDTO.getCalories());
-//			foodMeal.setCarbs(foodMealDTO.getCarbs());
-//			foodMeal.setSugars(foodMealDTO.getSugars());
-//			foodMeal.setTotalFat(foodMealDTO.getTotalFat());
-//			foodMeal.setSaturatedFat(foodMealDTO.getSaturatedFat());
-//			foodMeal.setCholesterol(foodMealDTO.getCholesterol());
-//			foodMeal.setProtein(foodMealDTO.getProtein());
-//			foodMeal.setSodium(foodMealDTO.getSodium());
-//			foodMeal.setPotasium(foodMealDTO.getPotasium());
-//			foodMeal.setFiber(foodMealDTO.getFiber());
-//			foods.add(foodMeal);
-//		}
-//		meal.setFoods(foods); 
-//		Set<NutritionixFoodMeal> nutritionixFoods = new HashSet<NutritionixFoodMeal>();
-//		for(NutritionixFoodMealDTO nutritionixFoodMealDTO : mealDTO.getNutritionixFoods()) {
-//			NutritionixFoodMeal nutritionixFoodMeal = new NutritionixFoodMeal();
-//			nutritionixFoodMeal.setQuantity(nutritionixFoodMealDTO.getQuantity());
-//			nutritionixFoodMeal.setServingSize(nutritionixFoodMealDTO.getServingSize());
-//			nutritionixFoodMeal.setFoodNameQuery(nutritionixFoodMealDTO.getName());
-//			nutritionixFoodMeal.setMeal(meal); 
-//			nutritionixFoodMeal.setServingWeight(nutritionixFoodMealDTO.getServingWeight());
-//			nutritionixFoodMeal.setCalories(nutritionixFoodMealDTO.getCalories());
-//			nutritionixFoodMeal.setCarbs(nutritionixFoodMealDTO.getCarbs());
-//			nutritionixFoodMeal.setSugars(nutritionixFoodMealDTO.getSugars());
-//			nutritionixFoodMeal.setTotalFat(nutritionixFoodMealDTO.getTotalFat());
-//			nutritionixFoodMeal.setSaturatedFat(nutritionixFoodMealDTO.getSaturatedFat());
-//			nutritionixFoodMeal.setCholesterol(nutritionixFoodMealDTO.getCholesterol());
-//			nutritionixFoodMeal.setProtein(nutritionixFoodMealDTO.getProtein());
-//			nutritionixFoodMeal.setSodium(nutritionixFoodMealDTO.getSodium());
-//			nutritionixFoodMeal.setPotasium(nutritionixFoodMealDTO.getPotasium());
-//			nutritionixFoodMeal.setFiber(nutritionixFoodMealDTO.getFiber());
-//			nutritionixFoods.add(nutritionixFoodMeal);
-//		}
-//		meal.setNutritionixFoods(nutritionixFoods); 
-//		meal.setDay(day); 
-//		meals.add(meal);
-//	}
-//	Set<DayExercise> exercises = new HashSet<DayExercise>();
-//	for(DayExerciseDTO exerciseDTO : dayDTO.getExercises()) {
-//		DayExercise dayExercise = new DayExercise();
-//		dayExercise.setExercise(exerciseService.findById(exerciseDTO.getExerciseId()));
-//		dayExercise.setTime(exerciseDTO.getTime());
-//		dayExercise.setDay(day);
-//		exercises.add(dayExercise);
-//	}
-//	Set<NutritionixExerciseDay> nutritionixExercises = new HashSet<NutritionixExerciseDay>();
-//	for(String nutritionixExerciseQuery : dayDTO.getNutritionixExercises()) {
-//		NutritionixExerciseDay nutritionixExerciseDay = new NutritionixExerciseDay();
-//		nutritionixExerciseDay.setExerciseQuery(nutritionixExerciseQuery);
-//		nutritionixExerciseDay.setDay(day); 
-//		nutritionixExercises.add(nutritionixExerciseDay);
-//	}
-//	day.setDate(dayDTO.getDate());
-//	day.setUser(user);
-//	day.setTotalWaterIntake(dayDTO.getTotalWaterIntake());
-//	day.setMeals(meals);
-//	day.setExercises(exercises); 
-//	day.setNutritionixExercises(nutritionixExercises); 
-//	
-//	dayService.save(day);
-//	for(Meal m: day.getMeals()) {
-//		mealService.save(m);
-//		for(FoodMeal fm: m.getFoods()) {
-//			foodMealService.save(fm);
-//		}
-//		for(NutritionixFoodMeal nfm: m.getNutritionixFoods()) {
-//			nutritionixFoodMealService.save(nfm);
-//		}
-//	}
-//	for(DayExercise e: day.getExercises()) {
-//		dayExerciseService.save(e);
-//	}
-//	for(NutritionixExerciseDay nde: day.getNutritionixExercises()) {
-//		nutritionixDayExerciseService.save(nde);
-//	}
-//	
-//	return new ResponseEntity<>(HttpStatus.CREATED);
-//}
-
-//@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-//@RequestMapping(method = RequestMethod.PUT, consumes = "application/json")
-//public ResponseEntity<DayDTO> updateDay(@RequestBody DayDTO dayDTO){
-//	Day day = dayService.findDayByDateAndUsername(dayDTO.getDate(), dayDTO.getUsername());
-//	if(day == null) {
-//		return new ResponseEntity<DayDTO>(new DayDTO(), HttpStatus.NOT_FOUND);
-//	}
-//	day.setTotalWaterIntake(dayDTO.getTotalWaterIntake());
-//	dayService.save(day);
-//	//List<Meal> meals = mealService.findMealsByDayId(day.getId());
-//	for(MealDTO mealDTO : dayDTO.getMeals()) {
-//		Meal meal = mealService.findMealById(mealDTO.getId());
-//		Set<FoodMeal> foods = foodMealService.findFoodsByMealId(mealDTO.getId());
-//		for(FoodMealDTO foodMealDTO: mealDTO.getFoods()) {
-//			if(foodMealDTO.getId() == null) {
-//				FoodMeal foodMeal= new FoodMeal();
-//				foodMeal.setQuantity(foodMealDTO.getQuantity());
-//				foodMeal.setServingSize(foodMealDTO.getServingSize());
-//				foodMeal.setFood(foodService.findById(foodMealDTO.getFoodId()));
-////				foodMeal.setMeal(meal); 
-//				foodMeal.setServingWeight(foodMealDTO.getServingWeight());
-//				foodMeal.setCalories(foodMealDTO.getCalories());
-//				foodMeal.setCarbs(foodMealDTO.getCarbs());
-//				foodMeal.setSugars(foodMealDTO.getSugars());
-//				foodMeal.setTotalFat(foodMealDTO.getTotalFat());
-//				foodMeal.setSaturatedFat(foodMealDTO.getSaturatedFat());
-//				foodMeal.setCholesterol(foodMealDTO.getCholesterol());
-//				foodMeal.setProtein(foodMealDTO.getProtein());
-//				foodMeal.setSodium(foodMealDTO.getSodium());
-//				foodMeal.setPotasium(foodMealDTO.getPotasium());
-//				foodMeal.setFiber(foodMealDTO.getFiber());
-//				foods.add(foodMeal);
-//				foodMealService.save(foodMeal);
-//			}
-//		}
-//		meal.setFoods(foods); 
-//		Set<NutritionixFoodMeal> nutritionixFoods = nutritionixFoodMealService.findFoodsByMealId(mealDTO.getId());
-//		for(NutritionixFoodMealDTO nutritionixFoodMealDTO : mealDTO.getNutritionixFoods()) {
-//			if(nutritionixFoodMealDTO.getId() == null) {
-//				NutritionixFoodMeal nutritionixFoodMeal = new NutritionixFoodMeal();
-//				nutritionixFoodMeal.setQuantity(nutritionixFoodMealDTO.getQuantity());
-//				nutritionixFoodMeal.setServingSize(nutritionixFoodMealDTO.getServingSize());
-//				nutritionixFoodMeal.setFoodNameQuery(nutritionixFoodMealDTO.getName());
-//				nutritionixFoodMeal.setMeal(meal); 
-//				nutritionixFoodMeal.setServingWeight(nutritionixFoodMealDTO.getServingWeight());
-//				nutritionixFoodMeal.setCalories(nutritionixFoodMealDTO.getCalories());
-//				nutritionixFoodMeal.setCarbs(nutritionixFoodMealDTO.getCarbs());
-//				nutritionixFoodMeal.setSugars(nutritionixFoodMealDTO.getSugars());
-//				nutritionixFoodMeal.setTotalFat(nutritionixFoodMealDTO.getTotalFat());
-//				nutritionixFoodMeal.setSaturatedFat(nutritionixFoodMealDTO.getSaturatedFat());
-//				nutritionixFoodMeal.setCholesterol(nutritionixFoodMealDTO.getCholesterol());
-//				nutritionixFoodMeal.setProtein(nutritionixFoodMealDTO.getProtein());
-//				nutritionixFoodMeal.setSodium(nutritionixFoodMealDTO.getSodium());
-//				nutritionixFoodMeal.setPotasium(nutritionixFoodMealDTO.getPotasium());
-//				nutritionixFoodMeal.setFiber(nutritionixFoodMealDTO.getFiber());
-//				nutritionixFoods.add(nutritionixFoodMeal);
-//				nutritionixFoodMealService.save(nutritionixFoodMeal);
-//			}
-//		}
-//		meal.setNutritionixFoods(nutritionixFoods); 
-//		meal.setDay(day); 
-//		//meals.add(meal);
-//	}
-//	Set<DayExercise> exercises = dayExerciseService.findExercisesByDayId(day.getId());
-//	for(DayExerciseDTO exerciseDTO : dayDTO.getExercises()) {
-//		if(exerciseDTO.getId() == null) {
-//			DayExercise dayExercise = new DayExercise();
-//			dayExercise.setExercise(exerciseService.findById(exerciseDTO.getExerciseId()));
-//			dayExercise.setTime(exerciseDTO.getTime());
-//			dayExercise.setDay(day);
-//			exercises.add(dayExercise);
-//			dayExerciseService.save(dayExercise);
-//		}
-//	}
-//	Set<NutritionixExerciseDay> nutritionixExercises = nutritionixDayExerciseService.findExercisesByDayId(day.getId());
-//	for(String nutritionixExerciseQuery : dayDTO.getNutritionixExercises()) {
-//		NutritionixExerciseDay nutritionixExerciseDay = new NutritionixExerciseDay();
-//		nutritionixExerciseDay.setExerciseQuery(nutritionixExerciseQuery);
-//		nutritionixExerciseDay.setDay(day); 
-//		nutritionixExercises.add(nutritionixExerciseDay);//send only new exercises from the frontend!!!!!
-//		nutritionixDayExerciseService.save(nutritionixExerciseDay);
-//	}
-//	
-//	return new ResponseEntity<DayDTO>(new DayDTO(), HttpStatus.OK);
-//}
-
-//@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-//@RequestMapping(value="/create",method = RequestMethod.POST, consumes = "application/json")
-//public ResponseEntity<DayDTO> addNewDay(@RequestBody DayDTO dayDTO){
-//	Day day = new Day();
-//	User user = userRepository.findByUsername(dayDTO.getUsername());
-//	day.setUser(user);
-//	day.setDate(dayDTO.getDate());
-//	dayService.save(day);
-//	Meal breakfast = new Meal();
-//	breakfast.setMealType(MealType.BREAKFAST);
-//	breakfast.setDay(day);
-//	mealService.save(breakfast);
-//	Meal lunch = new Meal();
-//	lunch.setMealType(MealType.LUNCH);
-//	lunch.setDay(day);
-//	mealService.save(lunch);
-//	Meal dinner = new Meal();
-//	dinner.setMealType(MealType.DINNER);
-//	dinner.setDay(day);
-//	mealService.save(dinner);
-//	Meal snack = new Meal();
-//	snack.setMealType(MealType.SNACK);
-//	snack.setDay(day);
-//	mealService.save(snack);
-//	
-//	return new ResponseEntity<DayDTO>(new DayDTO(day),HttpStatus.CREATED);
-//}
-
-//System.out.println("addDay called, dayDTO = " + dayDTO.toString());
-//System.out.println("addDay called, dayDTO username = " + dayDTO.getUsername());
-//System.out.println("addDay called, dayDTO water intake = " + dayDTO.getTotalWaterIntake());
-//System.out.println("addDay called, dayDTO date = " + dayDTO.getDate());
-//System.out.println("addDay called, dayDTO exercises = " + dayDTO.getNutritionixExercises());
-//for(MealDTO mD: dayDTO.getMeals()) {
-//	System.out.println("addDay called, dayDTO mealtype = " + mD.getMealType());
-//	for(NutritionixFoodMealDTO nfmd: mD.getNutritionixFoods()) {
-//		System.out.println("addDay called, dayDTO nutritionix food name = " + nfmd.getName());
-//		System.out.println("addDay called, dayDTO nutritionix quantity = " + nfmd.getQuantity());
-//		System.out.println("addDay called, dayDTO nutritionix servingSize = " + nfmd.getServingSize());
-//	}
-//	for(FoodMealDTO fmd: mD.getFoods()) {
-//		System.out.println("addDay called, dayDTO food ID = " + fmd.getFoodId());
-//		System.out.println("addDay called, dayDTO nutritionix quantity = " + fmd.getQuantity());
-//	}
-//}

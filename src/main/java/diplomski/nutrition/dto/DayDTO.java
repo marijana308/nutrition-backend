@@ -47,22 +47,6 @@ public class DayDTO {
 		this(day.getId(), day.getDate(), day.getUser().getUsername(), day.getTotalWaterIntake());
 	}
 	
-//	public DayDTO getDayDTO(Day day) {
-//		Set<MealDTO> mealDTOs = new HashSet<MealDTO>();
-//		for(Meal meal : day.getMeals()) {
-//			mealDTOs.add(meal.toMealDTO());
-//		}
-//		Set<ExerciseDTO> exerciseDTOs = new HashSet<ExerciseDTO>();
-//		for(DayExercise exercise: day.getExercises()) {
-//			exerciseDTOs.add(exercise.toDayExerciseDTO());
-//		}
-//		Set<String> nutritionExercisesDTO = new HashSet<String>();
-//		for(NutritionixExerciseDay nutritionixExerciseDay : day.getNutritionixExercises()) {
-//			nutritionExercisesDTO.add(nutritionixExerciseDay.getExerciseQuery());
-//		}
-//		return new DayDTO(day.getDate(), day.getUser().getUsername(), day.getTotalWaterIntake(), mealDTOs, exerciseDTOs, nutritionExercisesDTO);
-//	}
-	
 	public Long getId() {
 		return id;
 	}

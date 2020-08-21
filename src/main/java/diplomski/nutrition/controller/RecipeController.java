@@ -14,18 +14,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import diplomski.nutrition.dto.FoodDTO;
+import diplomski.nutrition.dto.FoodMealDTO;
 import diplomski.nutrition.dto.RecipeDTO;
 import diplomski.nutrition.dto.RecipeFoodDTO;
+import diplomski.nutrition.dto.RecipeMealDTO;
 import diplomski.nutrition.dto.RecipeNutritionixFoodDTO;
+import diplomski.nutrition.entity.Food;
+import diplomski.nutrition.entity.FoodMeal;
 import diplomski.nutrition.entity.Recipe;
 import diplomski.nutrition.entity.RecipeFood;
+import diplomski.nutrition.entity.RecipeMeal;
 import diplomski.nutrition.entity.RecipeNutritionixFood;
 import diplomski.nutrition.entity.User;
 import diplomski.nutrition.repository.UserRepository;
 import diplomski.nutrition.service.impl.FoodService;
 import diplomski.nutrition.service.impl.RecipeFoodService;
+import diplomski.nutrition.service.impl.RecipeMealService;
 import diplomski.nutrition.service.impl.RecipeNutritionixFoodService;
 import diplomski.nutrition.service.impl.RecipeService;
 
@@ -47,6 +55,9 @@ public class RecipeController {
 	RecipeNutritionixFoodService recipeNutritionixFoodService;
 	
 	@Autowired
+	RecipeMealService recipeMealService;
+	
+	@Autowired
 	UserRepository userRepository;
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
@@ -61,7 +72,45 @@ public class RecipeController {
 		for(Recipe r: recipes) {
 			recipeDTOs.add(new RecipeDTO(r));
 		}
-		return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
+		return new ResponseEntity<List<RecipeDTO>>(recipeDTOs, HttpStatus.OK);
+	}
+	
+
+	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/search/{username}", method = RequestMethod.GET)
+	public ResponseEntity<List<RecipeDTO>> searchRecipes(@PathVariable String username, @RequestParam String query){
+		User user = userRepository.findByUsername(username);
+		if(user == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		List<Recipe> recipes = recipeService.searchRecipes(username, query);
+		List<RecipeDTO> recipeDTOs = new ArrayList<RecipeDTO>();
+		for(Recipe r: recipes) {
+			recipeDTOs.add(new RecipeDTO(r));
+		}
+		return new ResponseEntity<List<RecipeDTO>>(recipeDTOs, HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/foods/{recipeid}",method = RequestMethod.GET)
+	public ResponseEntity<List<RecipeFoodDTO>> getFoodsByRecipeId(@PathVariable Long recipeid){
+		Set<RecipeFood> foods = recipeFoodService.findFoodsByRecipeId(recipeid);
+		List<RecipeFoodDTO> foodDTOs = new ArrayList<RecipeFoodDTO>();
+		for(RecipeFood rf: foods) {
+			foodDTOs.add(new RecipeFoodDTO(rf));
+		}
+		return new ResponseEntity<List<RecipeFoodDTO>>(foodDTOs, HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/nutritionixFoods/{recipeid}",method = RequestMethod.GET)
+	public ResponseEntity<List<RecipeNutritionixFoodDTO>> getNutritionixFoodsByRecipeId(@PathVariable Long recipeid){
+		Set<RecipeNutritionixFood> foods = recipeNutritionixFoodService.findFoodsByRecipeId(recipeid);
+		List<RecipeNutritionixFoodDTO> foodDTOs = new ArrayList<RecipeNutritionixFoodDTO>();
+		for(RecipeNutritionixFood rnf: foods) {
+			foodDTOs.add(new RecipeNutritionixFoodDTO(rnf));
+		}
+		return new ResponseEntity<List<RecipeNutritionixFoodDTO>>(foodDTOs, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
@@ -72,16 +121,26 @@ public class RecipeController {
 		recipe.setUser(u);
 		recipe.setName(recipeDTO.getName());
 		recipe.setDirections(recipeDTO.getDirections());
-		System.out.println("RECIPE DTO, name" + recipeDTO.getName());
-		System.out.println("RECIPE DTO, directions" + recipeDTO.getDirections());
+		recipe.setNumberOfServings(recipeDTO.getNumberOfServings());
 		Set<RecipeFood> recipeFoods = new HashSet<RecipeFood>();
 		for(RecipeFoodDTO rfDTO: recipeDTO.getFoods()) {
 			RecipeFood rf = new RecipeFood();
-			System.out.println("RECIPE DTO, rfDTO quantity = " + rfDTO.getQuantity());
-			System.out.println("RECIPE DTO, rfDTO foodId = " + rfDTO.getId());
-			rf.setFood(foodService.findById(rfDTO.getFoodID()));//error
 			rf.setQuantity(rfDTO.getQuantity());
+			rf.setServingSize(rfDTO.getServingSize());
+			rf.setFood(foodService.findById(rfDTO.getFoodId()));//error
 			rf.setRecipe(recipe);
+			rf.setServingWeight(rfDTO.getServingWeight());
+			rf.setCalories(rfDTO.getCalories());
+			rf.setCarbs(rfDTO.getCarbs());
+			rf.setSugars(rfDTO.getSugars());
+			rf.setTotalFat(rfDTO.getTotalFat());
+			rf.setSaturatedFat(rfDTO.getSaturatedFat());
+			rf.setCholesterol(rfDTO.getCholesterol());
+			rf.setProtein(rfDTO.getProtein());
+			rf.setSodium(rfDTO.getSodium());
+			rf.setPotasium(rfDTO.getPotasium());
+			rf.setFiber(rfDTO.getFiber());
+			
 			recipeFoods.add(rf);
 		}
 		Set<RecipeNutritionixFood> recipeNutritionixFoods = new HashSet<RecipeNutritionixFood>();
@@ -91,10 +150,33 @@ public class RecipeController {
 			rnf.setServingSize(rnfDTO.getServingSize());
 			rnf.setQuery(rnfDTO.getName());
 			rnf.setRecipe(recipe);
+			rnf.setServingWeight(rnfDTO.getServingWeight());
+			rnf.setCalories(rnfDTO.getCalories());
+			rnf.setCarbs(rnfDTO.getCarbs());
+			rnf.setSugars(rnfDTO.getSugars());
+			rnf.setTotalFat(rnfDTO.getTotalFat());
+			rnf.setSaturatedFat(rnfDTO.getSaturatedFat());
+			rnf.setCholesterol(rnfDTO.getCholesterol());
+			rnf.setProtein(rnfDTO.getProtein());
+			rnf.setSodium(rnfDTO.getSodium());
+			rnf.setPotasium(rnfDTO.getPotasium());
+			rnf.setFiber(rnfDTO.getFiber());
 			recipeNutritionixFoods.add(rnf);
 		}
 		recipe.setFoods(recipeFoods);
 		recipe.setNutritionixFoods(recipeNutritionixFoods);
+		
+		recipe.setServingWeight(recipeDTO.getServingWeight());
+		recipe.setCalories(recipeDTO.getCalories());
+		recipe.setSugars(recipeDTO.getSugars());
+		recipe.setCarbs(recipeDTO.getCarbs());
+		recipe.setTotalFat(recipeDTO.getTotalFat());
+		recipe.setSaturatedFat(recipeDTO.getSaturatedFat());
+		recipe.setCholesterol(recipeDTO.getCholesterol());
+		recipe.setProtein(recipeDTO.getProtein());
+		recipe.setSodium(recipeDTO.getSodium());
+		recipe.setPotasium(recipeDTO.getPotasium());
+		recipe.setFiber(recipeDTO.getFiber());
 		
 		recipeService.save(recipe);
 		
@@ -110,60 +192,154 @@ public class RecipeController {
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
 	@RequestMapping(method = RequestMethod.PUT, consumes = "application/json")
-	public ResponseEntity<RecipeDTO> updateRecipe(@RequestBody RecipeDTO recipeDTO){
+	public ResponseEntity<RecipeDTO> update(@RequestBody RecipeDTO recipeDTO){
 		Recipe recipe = recipeService.findById(recipeDTO.getId());
 		if(recipe == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		recipe.setName(recipeDTO.getName());
 		recipe.setDirections(recipeDTO.getDirections());
-		Set<RecipeFood> recipeFoods = new HashSet<RecipeFood>();
+		recipe.setNumberOfServings(recipeDTO.getNumberOfServings());
+		//Set<RecipeFood> recipeFoods = new HashSet<RecipeFood>();
 		for(RecipeFoodDTO rfDTO: recipeDTO.getFoods()) {
-			if(rfDTO.getId() == null) {
-				RecipeFood newrf = new RecipeFood();
-				newrf.setFood(foodService.findById(rfDTO.getFoodID()));
-				newrf.setQuantity(rfDTO.getQuantity());
-				newrf.setRecipe(recipe);
-				recipeFoods.add(newrf);
-			}else {
-				RecipeFood rf = recipeFoodService.findById(rfDTO.getId());
-				rf.setFood(foodService.findById(rfDTO.getFoodID()));
+			if(rfDTO.getId() == null || rfDTO.getId().equals("")) {
+				RecipeFood rf = new RecipeFood();
 				rf.setQuantity(rfDTO.getQuantity());
-				recipeFoods.add(rf);
+				rf.setServingSize(rfDTO.getServingSize());
+				rf.setFood(foodService.findById(rfDTO.getFoodId()));//error
+				rf.setRecipe(recipe);
+				rf.setServingWeight(rfDTO.getServingWeight());
+				rf.setCalories(rfDTO.getCalories());
+				rf.setCarbs(rfDTO.getCarbs());
+				rf.setSugars(rfDTO.getSugars());
+				rf.setTotalFat(rfDTO.getTotalFat());
+				rf.setSaturatedFat(rfDTO.getSaturatedFat());
+				rf.setCholesterol(rfDTO.getCholesterol());
+				rf.setProtein(rfDTO.getProtein());
+				rf.setSodium(rfDTO.getSodium());
+				rf.setPotasium(rfDTO.getPotasium());
+				rf.setFiber(rfDTO.getFiber());
+				recipeFoodService.save(rf);
+//				recipeFoods.add(rf);
 			}
 		}
-		Set<RecipeNutritionixFood> recipeNutritionixFoods = new HashSet<RecipeNutritionixFood>();
+		//Set<RecipeNutritionixFood> recipeNutritionixFoods = new HashSet<RecipeNutritionixFood>();
 		for(RecipeNutritionixFoodDTO rnfDTO : recipeDTO.getNutritionixFoods()) {
-			if(rnfDTO.getId() == null) {
-				RecipeNutritionixFood newrnf = new RecipeNutritionixFood();
-				newrnf.setQuantity(rnfDTO.getQuantity());
-				newrnf.setServingSize(rnfDTO.getServingSize());
-				newrnf.setQuery(rnfDTO.getName());
-				newrnf.setRecipe(recipe);
-				recipeNutritionixFoods.add(newrnf);
-			}else {
-				RecipeNutritionixFood rnf = recipeNutritionixFoodService.findById(rnfDTO.getId());
+			if(rnfDTO.getId() == null || rnfDTO.getId().equals("")) {
+				RecipeNutritionixFood rnf = new RecipeNutritionixFood();
 				rnf.setQuantity(rnfDTO.getQuantity());
 				rnf.setServingSize(rnfDTO.getServingSize());
 				rnf.setQuery(rnfDTO.getName());
-				recipeNutritionixFoods.add(rnf);
+				rnf.setRecipe(recipe);
+				rnf.setServingWeight(rnfDTO.getServingWeight());
+				rnf.setCalories(rnfDTO.getCalories());
+				rnf.setCarbs(rnfDTO.getCarbs());
+				rnf.setSugars(rnfDTO.getSugars());
+				rnf.setTotalFat(rnfDTO.getTotalFat());
+				rnf.setSaturatedFat(rnfDTO.getSaturatedFat());
+				rnf.setCholesterol(rnfDTO.getCholesterol());
+				rnf.setProtein(rnfDTO.getProtein());
+				rnf.setSodium(rnfDTO.getSodium());
+				rnf.setPotasium(rnfDTO.getPotasium());
+				rnf.setFiber(rnfDTO.getFiber());
+				recipeNutritionixFoodService.save(rnf);
+				//recipeNutritionixFoods.add(rnf);
 			}
 		}
-		
 //		recipe.setFoods(recipeFoods);
-//		recipe.setNutritionixFoods(recipeNutritionixFoods); 
+//		recipe.setNutritionixFoods(recipeNutritionixFoods);
+		
+		recipe.setServingWeight(recipeDTO.getServingWeight());
+		recipe.setCalories(recipeDTO.getCalories());
+		recipe.setSugars(recipeDTO.getSugars());
+		recipe.setCarbs(recipeDTO.getCarbs());
+		recipe.setTotalFat(recipeDTO.getTotalFat());
+		recipe.setSaturatedFat(recipeDTO.getSaturatedFat());
+		recipe.setCholesterol(recipeDTO.getCholesterol());
+		recipe.setProtein(recipeDTO.getProtein());
+		recipe.setSodium(recipeDTO.getSodium());
+		recipe.setPotasium(recipeDTO.getPotasium());
+		recipe.setFiber(recipeDTO.getFiber());
 		
 		recipeService.save(recipe);
 		
-		for(RecipeFood rf: recipeFoods) {
-			recipeFoodService.save(rf);
-		}
-		for(RecipeNutritionixFood rnf : recipeNutritionixFoods) {
-			recipeNutritionixFoodService.save(rnf);
-		}
+//		for(RecipeFood rf: recipeFoods) {
+//			recipeFoodService.save(rf);
+//		}
+//		for(RecipeNutritionixFood rnf : recipeNutritionixFoods) {
+//			recipeNutritionixFoodService.save(rnf);
+//		}
 		
 		return new ResponseEntity<>(new RecipeDTO(recipe), HttpStatus.CREATED);
 	}
+	
+	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/meal/{mealid}",method = RequestMethod.GET)
+	public ResponseEntity<List<RecipeMealDTO>> getRecipesByMealId(@PathVariable Long mealid){
+		Set<RecipeMeal> recipes = recipeMealService.findRecipesByMealId(mealid);
+		List<RecipeMealDTO> recipeDTOs = new ArrayList<RecipeMealDTO>();
+		for(RecipeMeal rm: recipes) {
+			recipeDTOs.add(new RecipeMealDTO(rm));
+		}
+		return new ResponseEntity<List<RecipeMealDTO>>(recipeDTOs, HttpStatus.OK);
+	}
+	
+//	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+//	@RequestMapping(method = RequestMethod.PUT, consumes = "application/json")
+//	public ResponseEntity<RecipeDTO> updateRecipe(@RequestBody RecipeDTO recipeDTO){
+//		Recipe recipe = recipeService.findById(recipeDTO.getId());
+//		if(recipe == null) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+//		recipe.setName(recipeDTO.getName());
+//		recipe.setDirections(recipeDTO.getDirections());
+//		Set<RecipeFood> recipeFoods = new HashSet<RecipeFood>();
+//		for(RecipeFoodDTO rfDTO: recipeDTO.getFoods()) {
+//			if(rfDTO.getId() == null) {
+//				RecipeFood newrf = new RecipeFood();
+//				newrf.setFood(foodService.findById(rfDTO.getFoodId()));
+//				newrf.setQuantity(rfDTO.getQuantity());
+//				newrf.setRecipe(recipe);
+//				recipeFoods.add(newrf);
+//			}else {
+//				RecipeFood rf = recipeFoodService.findById(rfDTO.getId());
+//				rf.setFood(foodService.findById(rfDTO.getFoodId()));
+//				rf.setQuantity(rfDTO.getQuantity());
+//				recipeFoods.add(rf);
+//			}
+//		}
+//		Set<RecipeNutritionixFood> recipeNutritionixFoods = new HashSet<RecipeNutritionixFood>();
+//		for(RecipeNutritionixFoodDTO rnfDTO : recipeDTO.getNutritionixFoods()) {
+//			if(rnfDTO.getId() == null) {
+//				RecipeNutritionixFood newrnf = new RecipeNutritionixFood();
+//				newrnf.setQuantity(rnfDTO.getQuantity());
+//				newrnf.setServingSize(rnfDTO.getServingSize());
+//				newrnf.setQuery(rnfDTO.getName());
+//				newrnf.setRecipe(recipe);
+//				recipeNutritionixFoods.add(newrnf);
+//			}else {
+//				RecipeNutritionixFood rnf = recipeNutritionixFoodService.findById(rnfDTO.getId());
+//				rnf.setQuantity(rnfDTO.getQuantity());
+//				rnf.setServingSize(rnfDTO.getServingSize());
+//				rnf.setQuery(rnfDTO.getName());
+//				recipeNutritionixFoods.add(rnf);
+//			}
+//		}
+//		
+////		recipe.setFoods(recipeFoods);
+////		recipe.setNutritionixFoods(recipeNutritionixFoods); 
+//		
+//		recipeService.save(recipe);
+//		
+//		for(RecipeFood rf: recipeFoods) {
+//			recipeFoodService.save(rf);
+//		}
+//		for(RecipeNutritionixFood rnf : recipeNutritionixFoods) {
+//			recipeNutritionixFoodService.save(rnf);
+//		}
+//		
+//		return new ResponseEntity<>(new RecipeDTO(recipe), HttpStatus.CREATED);
+//	}
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -183,7 +359,7 @@ public class RecipeController {
 	}
 
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-	@RequestMapping(value = "/food/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/deleteFood/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> deleteFoodInRecipeById(@PathVariable Long id){
 		RecipeFood recipeFood = recipeFoodService.findById(id);
 		if(recipeFood == null) {
@@ -194,7 +370,7 @@ public class RecipeController {
 	}
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-	@RequestMapping(value = "/nutritionixfood/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/deleteNutritionixFood/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> deleteNutritionixFoodInRecipeById(@PathVariable Long id){
 		RecipeNutritionixFood rnf = recipeNutritionixFoodService.findById(id);
 		//System.out.println("deleteNutritionixFoodInRecipeById");
