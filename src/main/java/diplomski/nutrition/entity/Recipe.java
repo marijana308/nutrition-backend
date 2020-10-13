@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+
 @Entity
 public class Recipe {
 	
@@ -36,7 +37,7 @@ public class Recipe {
 	
 	private Float servingWeight;
 	private Integer calories;
-	private Float carbs;
+	private Float totalCarbs;
 	private Float sugars;
 	private Float totalFat;
 	private Float saturatedFat;
@@ -134,12 +135,12 @@ public class Recipe {
 		this.calories = calories;
 	}
 
-	public Float getCarbs() {
-		return carbs;
+	public Float getTotalCarbs() {
+		return totalCarbs;
 	}
 
-	public void setCarbs(Float carbs) {
-		this.carbs = carbs;
+	public void setTotalCarbs(Float totalCarbs) {
+		this.totalCarbs = totalCarbs;
 	}
 
 	public Float getSugars() {

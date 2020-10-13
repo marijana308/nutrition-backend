@@ -95,11 +95,7 @@ public class RegularUserService implements RegularUserServiceInterface{
 		return BMI;	
 	}
 	
-	//@SuppressWarnings("deprecation")
 	private Float calculateBMR(Float height, Float weight, Date birthday, Gender gender) {
-//		long ageInMillis = new Date().getTime() - birthday.getTime();
-//	    Date ageDate = new Date(ageInMillis);
-//	    Integer age =  ageDate.getYear();
 		Integer age = calculateAge(birthday);
 		Float BMR = (float) ((10 * weight) + (6.25 * height) - (5 * age));
 		if (gender.equals(Gender.MALE)) {
@@ -121,36 +117,30 @@ public class RegularUserService implements RegularUserServiceInterface{
 		Date startDate = new Date();
 		Long days = getDayCount(startDate, goalDate);
 		Float kg = weight - goalWeight;
-		Integer caloriesToBurnOrGain = (int) (kg * 6000);
+		Integer caloriesToBurnOrGain = (int) (kg * 7500);
 		Integer dailyCaloriesToBurnOrGain = (int) (caloriesToBurnOrGain / days);
 		
 		if (activityLevel.equals(ActivityLevel.SEDENTARY)) {
 			calories = (int) (BMR * 1.2) - dailyCaloriesToBurnOrGain;
 		}
 		if (activityLevel.equals(ActivityLevel.LOW)) {
-			calories = (int) (BMR * 1.3) - dailyCaloriesToBurnOrGain;
+			calories = (int) (BMR * 1.375) - dailyCaloriesToBurnOrGain;
 		}
 		if (activityLevel.equals(ActivityLevel.ACTIVE)) {
-			calories = (int) (BMR * 1.4) - dailyCaloriesToBurnOrGain;
+			calories = (int) (BMR * 1.55) - dailyCaloriesToBurnOrGain;
 		}
 		if (activityLevel.equals(ActivityLevel.VERYACTIVE)) {
-			calories = (int) (BMR * 1.5) - dailyCaloriesToBurnOrGain;
+			calories = (int) (BMR * 1.725) - dailyCaloriesToBurnOrGain;
 		}
-//		if (calories < BMR) {
-//			return Math.round(BMR);
-//		}
 		return calories;
 	}
 	
 	@Override
 	public RegularUser save(RegularUser regularUser) {
 		Float BMI = calculateBMI(regularUser.getHeight(), regularUser.getWeight());
-		System.out.println("save, BMI: " + BMI);
 		Float BMR = calculateBMR(regularUser.getHeight(), regularUser.getWeight(), regularUser.getBirthday(), regularUser.getGender());
-		System.out.println("save, BMR: " + BMR);
 		Integer calories = calculateDailyCalories(BMR, regularUser.getActivityLevel(), 
 				regularUser.getWeight(), regularUser.getGoalWeight(), regularUser.getGoalDate());
-		System.out.println("save, calories:" + calories);
 		regularUser.setBMI(BMI);
 		regularUser.setBMR(BMR);
 		regularUser.setDailyCalories(calories);

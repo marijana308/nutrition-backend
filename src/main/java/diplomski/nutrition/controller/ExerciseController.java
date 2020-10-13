@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 import diplomski.nutrition.dto.DayExerciseDTO;
 import diplomski.nutrition.dto.DayNutritionixExerciseDTO;
 import diplomski.nutrition.dto.ExerciseDTO;
+import diplomski.nutrition.dto.FoodDTO;
 import diplomski.nutrition.dto.FoodMealDTO;
 import diplomski.nutrition.entity.DayExercise;
 import diplomski.nutrition.entity.Exercise;
+import diplomski.nutrition.entity.Food;
 import diplomski.nutrition.entity.FoodMeal;
 import diplomski.nutrition.entity.NutritionixExerciseDay;
 import diplomski.nutrition.entity.User;
@@ -81,6 +83,22 @@ public class ExerciseController {
 			exerciseDTOs.add(new ExerciseDTO(e));
 		}
 		return new ResponseEntity<>(exerciseDTOs, HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/all/{username}", method = RequestMethod.GET)
+	public ResponseEntity<List<ExerciseDTO>> getAllExercisesByUsername(@PathVariable String username){
+		User user = userRepository.findByUsername(username);
+		if(user == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		List<Exercise> exercises = exerciseService.findExercisesByUsername(username);
+		List<ExerciseDTO> exerciseDTOs = new ArrayList<ExerciseDTO>();
+		for(Exercise e: exercises) {
+			exerciseDTOs.add(new ExerciseDTO(e));
+			
+		}
+		return new ResponseEntity<List<ExerciseDTO>>(exerciseDTOs, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM', 'ADMIN')")

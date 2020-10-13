@@ -51,20 +51,20 @@ public class UserController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetails details = userDetailsService.loadUserByUsername(loginDTO.getUsername());
             String genToken = tokenUtils.generateToken(details);
-            System.out.println("details.getAuthorities().toString() = " + details.getAuthorities().toString());
-            System.out.println("details.getAuthorities().toArray()[0] = " + details.getAuthorities().toArray()[0]);
-            System.out.println("details.getAuthorities().toArray()[0].equals(Role.ADMIN) = " + details.getAuthorities().toArray()[0].toString().equals("ADMIN"));
-            System.out.println("details.getAuthorities().toArray()[0].equals(Role.REGULAR) = " + details.getAuthorities().toArray()[0].toString().equals("REGULAR"));
+            //System.out.println("details.getAuthorities().toString() = " + details.getAuthorities().toString());
+            //System.out.println("details.getAuthorities().toArray()[0] = " + details.getAuthorities().toArray()[0]);
+            //System.out.println("details.getAuthorities().toArray()[0].equals(Role.ADMIN) = " + details.getAuthorities().toArray()[0].toString().equals("ADMIN"));
+            //System.out.println("details.getAuthorities().toArray()[0].equals(Role.REGULAR) = " + details.getAuthorities().toArray()[0].toString().equals("REGULAR"));
             if(details.getAuthorities().toArray()[0].toString().equals("ADMIN")) {
             	User u = userRepository.findByUsername(loginDTO.getUsername());
-            	System.out.println("u.getId = " + u.getId());
+            	//System.out.println("u.getId = " + u.getId());
             	return new ResponseEntity<UserDetailsDTO>(new UserDetailsDTO(u, genToken),
                 		HttpStatus.OK);
             }else {
             	User u = userRepository.findByUsername(loginDTO.getUsername());
         		RegularUser regular = regularUserService.findById(u.getId());
-        		System.out.println("regular.getId = " + regular.getId());
-        		System.out.println("UserDetailsDTO(regular, genToken) = " + new UserDetailsDTO(regular, genToken).getFirstname());
+//        		System.out.println("regular.getId = " + regular.getId());
+//        		System.out.println("UserDetailsDTO(regular, genToken) = " + new UserDetailsDTO(regular, genToken).getFirstname());
             	return new ResponseEntity<UserDetailsDTO>(new UserDetailsDTO(regular, genToken),
                 		HttpStatus.OK);
             }

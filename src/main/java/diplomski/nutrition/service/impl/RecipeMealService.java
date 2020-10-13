@@ -31,4 +31,14 @@ public class RecipeMealService implements RecipeMealServiceInterface{
 	public RecipeMeal save(RecipeMeal recipeMeal) {
 		return repository.save(recipeMeal);
 	}
+
+	@Override
+	public RecipeMeal findById(Long id) {
+		return repository.findById(id).orElse(null);
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		repository.deleteById(id);
+	}
 }

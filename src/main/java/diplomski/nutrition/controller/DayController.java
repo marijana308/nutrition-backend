@@ -348,4 +348,17 @@ public class DayController {
 		nutritionixDayExerciseService.deleteById(id);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
+	@RequestMapping(value="/deleteRecipe/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<Void> deleteRecipeFromDay(@PathVariable Long id){
+		RecipeMeal rm = recipeMealService.findById(id);
+		if(rm == null) {
+			System.out.println("Recipe meal is null");
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		recipeMealService.deleteById(id);
+		System.out.println("Recipe meal is deleted");
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

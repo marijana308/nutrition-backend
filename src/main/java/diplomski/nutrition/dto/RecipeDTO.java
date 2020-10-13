@@ -16,7 +16,7 @@ public class RecipeDTO {
 	
 	private Float servingWeight;
 	private Integer calories;
-	private Float carbs;
+	private Float totalCarbs;
 	private Float sugars;
 	private Float totalFat;
 	private Float saturatedFat;
@@ -40,7 +40,7 @@ public class RecipeDTO {
 	}
 	
 	public RecipeDTO(Long id, String username, String name, String directions, Float numberOfServings, Float servingWeight,
-			Integer calories, Float carbs, Float sugars, Float totalFat, Float saturatedFat, Float cholesterol,
+			Integer calories, Float totalCarbs, Float sugars, Float totalFat, Float saturatedFat, Float cholesterol,
 			Float protein, Float sodium, Float potasium, Float fiber) {
 		super();
 		this.id = id;
@@ -50,7 +50,7 @@ public class RecipeDTO {
 		this.numberOfServings = numberOfServings;
 		this.servingWeight = servingWeight;
 		this.calories = calories;
-		this.carbs = carbs;
+		this.totalCarbs = totalCarbs;
 		this.sugars = sugars;
 		this.totalFat = totalFat;
 		this.saturatedFat = saturatedFat;
@@ -63,7 +63,7 @@ public class RecipeDTO {
 
 	public RecipeDTO(Recipe r) {
 		this(r.getId(), r.getUser().getUsername(), r.getName(), r.getDirections(), r.getNumberOfServings(), r.getServingWeight(),
-			r.getCalories(), r.getCarbs(), r.getSugars(), r.getTotalFat(), r.getSaturatedFat(), r.getCholesterol(), r.getProtein(),
+			r.getCalories(), r.getTotalCarbs(), r.getSugars(), r.getTotalFat(), r.getSaturatedFat(), r.getCholesterol(), r.getProtein(),
 			r.getSodium(), r.getPotasium(), r.getFiber());
 	}
 	
@@ -130,12 +130,12 @@ public class RecipeDTO {
 		this.calories = calories;
 	}
 
-	public Float getCarbs() {
-		return carbs;
+	public Float getTotalCarbs() {
+		return totalCarbs;
 	}
 
-	public void setCarbs(Float carbs) {
-		this.carbs = carbs;
+	public void setTotalCarbs(Float carbs) {
+		this.totalCarbs = carbs;
 	}
 
 	public Float getSugars() {

@@ -49,15 +49,15 @@ public class NutrientService implements NutrientServiceInterface{
 	
 	public Set<Nutrient> getNutrients(Integer calories, RegularUser user){
 		Set<Nutrient> nutrients = new HashSet<Nutrient>();
-		nutrients.add(new Nutrient(user, "totalFat", calculateDailyValue(calories, 65), "g"));
-		nutrients.add(new Nutrient(user, "saturatedFat", calculateDailyValue(calories, 20), "g"));
-		nutrients.add(new Nutrient(user, "cholesterol", calculateDailyValue(calories, 300), "mg"));
-		nutrients.add(new Nutrient(user, "sodium", calculateDailyValue(calories, 2400), "mg"));
-		nutrients.add(new Nutrient(user, "totalCarbs", calculateDailyValue(calories, 300), "g"));
-		nutrients.add(new Nutrient(user, "fiber", calculateDailyValue(calories, 25), "g"));
-		nutrients.add(new Nutrient(user, "sugars", calculateDailyValue(calories, 30), "g"));
-		nutrients.add(new Nutrient(user, "protein", calculateDailyValue(calories, 50), "g"));
-		nutrients.add(new Nutrient(user, "potasium", calculateDailyValue(calories, 4700), "mg"));
+		nutrients.add(new Nutrient(user, "totalFat", calculateDailyValue(calories, 65), "g")); //nutritionIX - g
+		nutrients.add(new Nutrient(user, "saturatedFat", calculateDailyValue(calories, 20), "g")); //nutritionIX - g
+		nutrients.add(new Nutrient(user, "cholesterol", calculateDailyValue(calories, 300), "mg")); //nutritionIX - mg
+		nutrients.add(new Nutrient(user, "sodium", calculateDailyValue(calories, 2400), "mg")); //nutritionIX - mg
+		nutrients.add(new Nutrient(user, "totalCarbs", calculateDailyValue(calories, 300), "g"));//nutritionIX - g
+		nutrients.add(new Nutrient(user, "fiber", calculateDailyValue(calories, 25), "g"));//nutritionIX - g
+		nutrients.add(new Nutrient(user, "sugars", calculateDailyValue(calories, 30), "g"));//nutritionIX - g 
+		nutrients.add(new Nutrient(user, "protein", calculateDailyValue(calories, 50), "g"));//nutritionIX - g
+		nutrients.add(new Nutrient(user, "potasium", calculateDailyValue(calories, 4700), "mg"));//nutritionIX - mg
 //		nutrients.add(new Nutrient(user, "vitaminA", calculateDailyValue(calories, 5000), "iu"));
 //		nutrients.add(new Nutrient(user, "vitaminC", calculateDailyValue(calories, 60), "mg"));
 //		nutrients.add(new Nutrient(user, "vitaminD", calculateDailyValue(calories, 400), "iu"));

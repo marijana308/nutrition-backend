@@ -61,7 +61,7 @@ public class RecipeController {
 	UserRepository userRepository;
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
-	@RequestMapping(value = "/{username}", method = RequestMethod.GET)
+	@RequestMapping(value = "/all/{username}", method = RequestMethod.GET)
 	public ResponseEntity<List<RecipeDTO>> getRecipesByUsername(@PathVariable String username){
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
@@ -169,7 +169,7 @@ public class RecipeController {
 		recipe.setServingWeight(recipeDTO.getServingWeight());
 		recipe.setCalories(recipeDTO.getCalories());
 		recipe.setSugars(recipeDTO.getSugars());
-		recipe.setCarbs(recipeDTO.getCarbs());
+		recipe.setTotalCarbs(recipeDTO.getTotalCarbs());
 		recipe.setTotalFat(recipeDTO.getTotalFat());
 		recipe.setSaturatedFat(recipeDTO.getSaturatedFat());
 		recipe.setCholesterol(recipeDTO.getCholesterol());
@@ -252,7 +252,7 @@ public class RecipeController {
 		recipe.setServingWeight(recipeDTO.getServingWeight());
 		recipe.setCalories(recipeDTO.getCalories());
 		recipe.setSugars(recipeDTO.getSugars());
-		recipe.setCarbs(recipeDTO.getCarbs());
+		recipe.setTotalCarbs(recipeDTO.getTotalCarbs());
 		recipe.setTotalFat(recipeDTO.getTotalFat());
 		recipe.setSaturatedFat(recipeDTO.getSaturatedFat());
 		recipe.setCholesterol(recipeDTO.getCholesterol());

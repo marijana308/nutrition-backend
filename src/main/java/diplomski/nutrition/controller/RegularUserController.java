@@ -125,6 +125,23 @@ public class RegularUserController {
 		return new ResponseEntity<>(new UserDTO(user), HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAuthority('REGULAR')")
+	@RequestMapping(value = "/api/updateToPremium/{username}", method = RequestMethod.GET)
+	public ResponseEntity<UserDetailsDTO> updateToPremium(@PathVariable String username){
+		User u = userRepository.findByUsername(username);
+		if(u == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		RegularUser user = regularUserService.findById(u.getId());
+		if(user.getPoints() >= 100) {
+			user.setRole(Role.PREMIUM);
+			
+			regularUserService.update(user);
+		}
+		
+		return new ResponseEntity<>(new UserDetailsDTO(user), HttpStatus.OK);
+	}
+	
 //	@RequestMapping(value = "/api/updateRole/{username}", method = RequestMethod.GET)
 //	public ResponseEntity<UserDTO> updateRole(@PathVariable String username){
 //		User u = userRepository.findByUsername(username);

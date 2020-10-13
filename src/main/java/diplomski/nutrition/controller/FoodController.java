@@ -49,21 +49,36 @@ public class FoodController {
 	@Autowired
 	UserRepository userRepository;
 	
-	@PreAuthorize("hasAuthority('ADMIN')")
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<FoodDTO>> getAllFoods(){
-		List<Food> foods = foodService.findAll();
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/allAdmin", method = RequestMethod.GET)
+	public ResponseEntity<List<FoodDTO>> getAllAdminFoods(){
+		List<Food> foods = foodService.findFoodsCreatedByAdmins();
+		List<FoodDTO> foodDTOs = new ArrayList<FoodDTO>();
+		for(Food f: foods) {
+			foodDTOs.add(new FoodDTO(f));
+		}
+		return new ResponseEntity<List<FoodDTO>>(foodDTOs, HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasAnyAuthority('ADMIN', 'REGULAR', 'PREMIUM')")
+	@RequestMapping(value = "/all/{username}", method = RequestMethod.GET)
+	public ResponseEntity<List<FoodDTO>> getAllFoodsByUsername(@PathVariable String username){
+		User user = userRepository.findByUsername(username);
+		if(user == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		List<Food> foods = foodService.findFoodsByUsername(username);
 		List<FoodDTO> foodDTOs = new ArrayList<FoodDTO>();
 		for(Food f: foods) {
 			foodDTOs.add(new FoodDTO(f));
 			
 		}
-		return new ResponseEntity<>(foodDTOs, HttpStatus.OK);
+		return new ResponseEntity<List<FoodDTO>>(foodDTOs, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM')")
 	@RequestMapping(value = "/{username}", method = RequestMethod.GET)
-	public ResponseEntity<List<FoodDTO>> getFoodsByUsername(@PathVariable String username, @RequestParam String query){
+	public ResponseEntity<List<FoodDTO>> searchFoodsByUsername(@PathVariable String username, @RequestParam String query){
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -79,7 +94,7 @@ public class FoodController {
 	
 	@PreAuthorize("hasAnyAuthority('REGULAR', 'PREMIUM', 'ADMIN')")
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
-	public ResponseEntity<List<FoodDTO>> getFoodsCreatedByAdmins(@RequestParam String query){
+	public ResponseEntity<List<FoodDTO>> searchFoodsCreatedByAdmins(@RequestParam String query){
 		List<Food> foods = foodService.searchFoodsCreatedByAdmins(query);
 		List<FoodDTO> foodDTOs = new ArrayList<FoodDTO>();
 		for(Food f: foods) {
